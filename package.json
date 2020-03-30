@@ -1,0 +1,25 @@
+{
+  "name": "lottodream",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "koalanlp": "^2.1.0",
+    "node-java": "^1.0.1",
+    "node-java-maven": "^0.1.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/securekim/lottoDream.git"
+  },
+  "author": "securekim",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/securekim/lottoDream/issues"
+  },
+  "homepage": "https://github.com/securekim/lottoDream#readme"
+}
