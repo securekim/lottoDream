@@ -6,17 +6,17 @@ async function executor(){
     await initialize({packages: {HNN: '2.1.4', KKMA: '2.1.4'}, verbose: true});
 
     let tagger = new Tagger(HNN);
-    let tagged = await tagger("안녕하세요. 눈이 오는 설날 아침입니다.");
+    let tagged = await tagger("끓는 물로 샤워하는 꿈이었는데 너무 뜨거워서 깜짝 놀라서 깼습니다.");
     for(const sent of tagged) {
-        console.log(sent.toString());
+	console.log("[TAG] "+sent.toString());
     }
 
-    let parser = new Parser(KKMA);
-    let parsed = await parser("안녕하세요. 눈이 오는 설날 아침입니다.");
+    let parser = new Parser(HNN);
+    let parsed = await parser("끓는 물로 샤워하는 꿈이었는데 너무 뜨거워서 깜짝 놀라서 깼습니다.");
     for(const sent of parsed){
         console.log(sent.toString());
         for(const dep of sent.dependencies){
-            console.log(dep.toString());
+            console.log("[Parse] "+dep.toString());
         }
     }
 }
