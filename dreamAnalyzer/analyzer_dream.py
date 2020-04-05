@@ -14,21 +14,25 @@ from tensorflow.keras.layers import Embedding, Dense, LSTM
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.models import load_model
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
+from os.path import dirname, join
 os.environ['PYTHONHASHSEED'] = '0'
 
 #os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
+
+
 #1. 데이터 로드
-train_data = pd.read_table('interpretation_train_pos_neg.txt')
-test_data = pd.read_table('interpretation_test_pos_neg.txt')
-predict_data = pd.read_table('interpretation_test_pos_neg.txt')
+train_data = pd.read_table(join(dirname(__file__), './interpretation_train_pos_neg.txt'))
+test_data = pd.read_table(join(dirname(__file__), './interpretation_test_pos_neg.txt'))
+predict_data = pd.read_table(join(dirname(__file__), './interpretation_predict.txt'))
 
 #train_data = pd.read_table('ratings_train.txt')
 #test_data = pd.read_table('ratings_test.txt')
 
-print('훈련용 꿈 개수 :',len(train_data))
-print('테스트용 꿈 개수 :',len(test_data)) # 테스트용 리뷰 개수 출력
+print('훈련용 해몽 개수 :',len(train_data))
+print('테스트용 해몽 개수 :',len(test_data)) # 테스트용 리뷰 개수 출력
+print('예측용 해몽 개수 :',len(predict_data))
 
 #2. 데이터 정제 (중복항목제거)
 train_data['document'].nunique(), train_data['label'].nunique()
@@ -53,6 +57,12 @@ test_data['document'].replace('', np.nan, inplace=True) # 공백은 Null 값으�
 test_data = test_data.dropna(how='any') # Null 값 제거
 print('전처리 후 테스트용 샘플의 개수 :',len(test_data))
 
+#### 예측 데이터에는 동일하게 수행하면 안됨.
+#predict_data.drop_duplicates(subset = ['document'], inplace=True) # document 열에서 중복인 내용이 있다면 중복 제거
+predict_data['document'] = predict_data['document'].str.replace("[^ㄱ-ㅎㅏ-ㅣ가-힣 ]","") # 정규 표현식 수행
+predict_data['document'].replace('', np.nan, inplace=True) # 공백은 Null 값으로 변경
+#predict_data = predict_data.dropna(how='any') # Null 값 제거
+print('전처리 후 예측 샘플의 개수 :',len(predict_data))
 
 # 3. 토큰화
 #train_data에 형태소 분석기를 사용하여 토큰화를 하면서 불용어를 제거하여 X_train에 저장합니다.
@@ -751,6 +761,15 @@ for sentence in test_data['document']:
     temp_X = [word for word in temp_X if not word in stopwords] # 불용어 제거
     X_test.append(temp_X)
 
+    
+#예측 데이터에도 수행
+X_predict = []
+for sentence in predict_data['document']:
+    temp_X = []
+    temp_X = okt.morphs(sentence, stem=True) # 토큰화
+    temp_X = [word for word in temp_X if not word in stopwords] # 불용어 제거
+    X_predict.append(temp_X)
+
 # 정수 인코딩
 tokenizer = Tokenizer()
 tokenizer.fit_on_texts(X_train)
@@ -786,29 +805,38 @@ tokenizer = Tokenizer(vocab_size)
 tokenizer.fit_on_texts(X_train)
 X_train = tokenizer.texts_to_sequences(X_train)
 X_test = tokenizer.texts_to_sequences(X_test)
+X_predict = tokenizer.texts_to_sequences(X_predict)
 
 y_train = np.array(train_data['label'])
 y_test = np.array(test_data['label'])
+y_predict = np.array(predict_data['label'])
 
 #5. 빈 샘플 제거
 drop_train = [index for index, sentence in enumerate(X_train) if len(sentence) < 1]
 drop_test = [index for index, sentence in enumerate(X_test) if len(sentence) < 1]
+#drop_predict = [index for index, sentence in enumerate(X_predict) if len(sentence) < 1]
 
 # 트레이닝 빈 샘플 제거
 X_train = np.delete(X_train, drop_train, axis=0)
 y_train = np.delete(y_train, drop_train, axis=0)
-print(len(X_train))
-print(len(y_train))
+print("트레이닝 : "+str(len(X_train)))
+print("트레이닝 : "+str(len(y_train)))
 
 # 테스트 빈 샘플 제거
 X_test = np.delete(X_test, drop_test, axis=0)
 y_test = np.delete(y_test, drop_test, axis=0)
-print(len(X_test))
-print(len(y_test))
+print("테스트 : "+str(len(X_test)))
+print("테스트 : "+str(len(y_test)))
+
+# 예측 빈 샘플 제거
+# X_predict = np.delete(X_predict, drop_predict, axis=0)
+# y_predict = np.delete(y_predict, drop_predict, axis=0)
+print("예측 : "+str(len(X_predict)))
+print("예측 : "+str(len(y_predict)))
 
 # 6. 패딩
-print('리뷰의 최대 길이 :',max(len(l) for l in X_train))
-print('리뷰의 평균 길이 :',sum(map(len, X_train))/len(X_train))
+print('해몽의 최대 길이 :',max(len(l) for l in X_train))
+print('해몽의 평균 길이 :',sum(map(len, X_train))/len(X_train))
 
 # 샘플 단어의 길이 그래프 표시
 #plt.hist([len(s) for s in X_train], bins=50)
@@ -830,6 +858,7 @@ below_threshold_len(max_len, X_train)
 
 X_train = pad_sequences(X_train, maxlen = max_len)
 X_test = pad_sequences(X_test, maxlen = max_len)
+X_predict = pad_sequences(X_predict, maxlen = max_len)
 
 ###### LSTM 으로 분류
 
@@ -874,7 +903,7 @@ plt.xlabel('Epochs')
 plt.ylabel('Loss')
 plt.legend()
 
-plt.show()
+#plt.show()
 
 # 훈련과 손실 정확도 그리기
 plt.clf() # 그래프를 초기화합니다.
@@ -888,20 +917,11 @@ plt.xlabel('Epochs')
 plt.ylabel('Accuracy')
 plt.legend()
 
-plt.show()
+#plt.show()
 
 
 ## 실제로 predict 해보자
-xhatc = loaded_model.predict_classes(X_test)
-yhat = []
-for sentence in test_data['label']:
-    yhat.append(sentence)
+xhatc = loaded_model.predict_classes(X_predict)
+x = np.array(xhatc)
+np.savetxt("predictedData.txt", x)
 
-ok = 0
-
-for i in range(999):
-    print('True : '+str(yhat[i])+' Predict : ' + str(xhatc[i]))
-    if ('['+str(yhat[i])+']') == (str(xhatc[i])): 
-                ok=ok+1
-
-print('OK : '+str(ok))
