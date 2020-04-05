@@ -5,15 +5,24 @@ import urllib.request
 import matplotlib.pyplot as plt
 import re
 from konlpy.tag import Okt
+import os
+import tensorflow as tf
 from tensorflow.keras.preprocessing.text import Tokenizer
 import numpy as np
 from tensorflow.keras.preprocessing.sequence import pad_sequences
-import os
+from tensorflow.keras.layers import Embedding, Dense, LSTM
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.models import load_model
+from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
+os.environ['PYTHONHASHSEED'] = '0'
+
+#os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 #1. 데이터 로드
 train_data = pd.read_table('interpretation_train_pos_neg.txt')
 test_data = pd.read_table('interpretation_test_pos_neg.txt')
+predict_data = pd.read_table('interpretation_test_pos_neg.txt')
 
 #train_data = pd.read_table('ratings_train.txt')
 #test_data = pd.read_table('ratings_test.txt')
@@ -824,14 +833,10 @@ X_test = pad_sequences(X_test, maxlen = max_len)
 
 ###### LSTM 으로 분류
 
-from tensorflow.keras.layers import Embedding, Dense, LSTM
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.models import load_model
-from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
 
 model = Sequential()
 model.add(Embedding(vocab_size, 100))
-model.add(LSTM(128))
+model.add(LSTM(128, stateful = False))
 model.add(Dense(1, activation='sigmoid'))
 
 es = EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=4)
@@ -840,7 +845,16 @@ mc = ModelCheckpoint('best_model.h5', monitor='val_acc', mode='max', verbose=1, 
 model.compile(optimizer='rmsprop', loss='binary_crossentropy', metrics=['acc'])
 history = model.fit(X_train, y_train, epochs=15, callbacks=[es, mc], batch_size=60, validation_split=0.2)
 
-loaded_model = load_model('best_model.h5')
+model.save('best_model2.h5')  # creates a HDF5 file 'my_model.h5'
+
+model_json = model.to_json()
+with open("model.json", "w") as json_file : 
+    json_file.write(model_json)
+
+model.save_weights("model.h5")
+
+loaded_model = load_model('best_model2.h5')
+loaded_model.summary()
 print("\n 테스트 정확도: %.4f" % (loaded_model.evaluate(X_test, y_test)[1]))
 
 
@@ -876,3 +890,18 @@ plt.legend()
 
 plt.show()
 
+
+## 실제로 predict 해보자
+xhatc = loaded_model.predict_classes(X_test)
+yhat = []
+for sentence in test_data['label']:
+    yhat.append(sentence)
+
+ok = 0
+
+for i in range(999):
+    print('True : '+str(yhat[i])+' Predict : ' + str(xhatc[i]))
+    if ('['+str(yhat[i])+']') == (str(xhatc[i])): 
+                ok=ok+1
+
+print('OK : '+str(ok))
