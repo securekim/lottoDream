@@ -1,0 +1,35 @@
+<html>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/clientCode.js">TEST</script>
+    <body>
+        register("myID", "myPW", "myEmail@email.com", "myNickName", "NA", "Web", (result)=>{
+            console.table(result);
+        })
+        <br><br>
+        login("myID", "myPW", (result)=>{
+            console.table(result);
+        })
+        <br><br>
+        isLoggedIn((result)=>{
+            console.table(result);
+        })
+        <br><br>
+        writeHistory([{Coin: 500, Sec : 100}, {Coin: 100, Sec : 250}, {Coin: 100, Sec : 500}] , 700, (result)=>{
+            console.table(result);
+        });
+        <br><br>
+        readHistory((result)=>{
+            console.table(result);
+        })
+        <br><br>
+        multi_getRoom();
+        <br><br>
+        multi_makeRoom();
+        <br><br>
+        multi_writeHistory([{Coin: 500, Sec : 100}, {Coin: 100, Sec : 250}, {Coin: 100, Sec : 500}]);
+        <br><br>
+
+
+    </body>
+
+</html>
