@@ -81,7 +81,7 @@ const B_FAIL_UNAUTHORIZED   = "You are not logged in.";
 const B_FAIL_FORBIDDEN      = "You don't have permission.";
 const B_FAIL_WEIRD_DATA     = "Your data is weird.";
 const B_FAIL_NOT_FOUND      = "There is no data.";
-const B_FAIL_NOT_ACCEPTABLE = "Request is not acceptable."
+const B_FAIL_NOT_ACCEPTABLE = "Request is not acceptable.";
 const B_FAIL_SERVER_ERR     = "Undefined feature.";
 const B_FAIL_SERVER_HACKED  = "Undefined feature.";
 
@@ -246,15 +246,66 @@ app.route('/history')
         //req.body.target
     })
 
-
-app.route('dream')
+    //https://www.nlotto.co.kr/common.do?method=getLottoNumber&drwNo=905
+    //{"totSellamnt":90357634000,"returnValue":"success","drwNoDate":"2020-04-04","firstWinamnt":3017862536,"drwtNo6":40,"drwtNo4":27,"firstPrzwnerCo":7,"drwtNo5":38,"bnusNo":20,"firstAccumamnt":21125037752,"drwNo":905,"drwtNo2":4,"drwtNo3":16,"drwtNo1":3}
+    //https://www.nlotto.co.kr/common.do?method=getLottoNumber&drwNo=904
+    //{"totSellamnt":88938220000,"returnValue":"success","drwNoDate":"2020-03-28","firstWinamnt":2718077813,"drwtNo6":45,"drwtNo4":26,"firstPrzwnerCo":8,"drwtNo5":43,"bnusNo":11,"firstAccumamnt":21744622504,"drwNo":904,"drwtNo2":6,"drwtNo3":8,"drwtNo1":2}
+    //https://www.nlotto.co.kr/common.do?method=getLottoNumber&drwNo=2020
+    //{"returnValue":"fail"}
+    /*
+    {returnValue:"실행 결과",totSellamnt:"누적금",drwNo:"회차",drwNoDate:"당첨일",firstWinamnt:"1등 당첨금",firstPrzwnerCo:"1등 당첨 인원",firstAccumamnt:"1등 당첨금 총액",drwtNo1:"번호1",drwtNo2:"번호2",drwtNo3:"번호3",drwtNo4:"번호4",drwtNo5:"번호5",drwtNo6:"번호6",bnusNo:"보너스"}
+    */    
+   const lottoResult = {"returnValue":"실행 결과","totSellamnt":"누적금","drwNo":"회차","drwNoDate":"당첨일","firstWinamnt":"1등 당첨금","firstPrzwnerCo":"1등 당첨 인원","firstAccumamnt":"1등 당첨금 총액","drwtNo1":"번호1","drwtNo2":"번호2","drwtNo3":"번호3","drwtNo4":"번호4","drwtNo5":"번호5","drwtNo6":"번호6","bnusNo":"보너스"}
+app.route('/dream/number')
     .get((req,res)=>{
         if(isLogout(req)) return res.status(H_FAIL_UNAUTHORIZED).send(B_FAIL_UNAUTHORIZED);
-
+        let token   = req.body.token,
+            id      = req.session.uid,
+            dream   = req.body.dream;
+        if(isNone(token) || isNone(dream) || isNone(round) || isNone(data)){
+                res.status(H_FAIL_BAD_REQUEST).send(B_FAIL_WEIRD_DATA);
+            } else {
+                let params = [token, dream];
+                generalQ(QUERY.DREAM_NUMBER_GET,params,(result)=>{
+                    if(result.fail){
+                        res.status(H_FAIL_SERVER_ERR).send(result.error);
+                    } else {
+                        if(result.rows.length == 0){
+                            res.status(H_FAIL_SERVER_ERR).send(B_FAIL_SERVER_ERR);
+                        } else {
+                            res.status(H_SUCCESS_REQ).send(result.rows);
+                        }
+                    }
+                });
+            }
+             
     })
     .post((req,res)=>{
         if(isLogout(req)) return res.status(H_FAIL_UNAUTHORIZED).send(B_FAIL_UNAUTHORIZED);
+        let token   = req.body.token,
+            id      = req.session.uid,
+            dream   = req.body.dream,
+            round   = req.body.round,
+            data    = req.body.data; // data.number, data.word
 
+            if(isNone(token) || isNone(dream) || isNone(round) || isNone(data)){
+                res.status(H_FAIL_BAD_REQUEST).send(B_FAIL_WEIRD_DATA);
+            } else {
+                let number  = data.number;
+                let word    = data.word;
+                let params = [token, id, dream, round, number, word];
+                    generalQ(QUERY.DREAM_NUMBER_POST,params,(result)=>{
+                        if(result.fail){
+                            res.status(H_FAIL_SERVER_ERR).send(result.error);
+                        } else {
+                            if(result.rows.length == 0){
+                                res.status(H_FAIL_SERVER_ERR).send(B_FAIL_SERVER_ERR);
+                            } else {
+                                res.status(H_SUCCESS_REQ).send(result.rows);
+                            }
+                        }
+                    });
+            }
     })
 
 
