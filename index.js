@@ -321,15 +321,15 @@ app.route('/dream/number')
 //     `)
 // })
 
-app.get('/*', function(req, res) { 
-    //todo : .. 이런거 다 삭제하기
-    res.sendfile(req.url,function(err){
-     if(err){
-        console.log(err);
-        res.status(H_FAIL_NOT_FOUND).send(B_FAIL_NOT_FOUND);
-     }
-    });
-   });
+// app.get('/*', function(req, res) { 
+//     //todo : .. 이런거 다 삭제하기
+//     res.sendfile(req.url,function(err){
+//      if(err){
+//         console.log(err);
+//         res.status(H_FAIL_NOT_FOUND).send(B_FAIL_NOT_FOUND);
+//      }
+//     });
+//    });
    
 process.on('uncaughtException', function (err) {
 	//예상치 못한 예외 처리
