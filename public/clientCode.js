@@ -1,6 +1,6 @@
 
-let SERVER = window.location.href;
- 
+//let SERVER = window.location.href;
+let SERVER = "http://makers.securekim.com/"
 
 //[HEADER]
 const H_SUCCESS_REQ         = 200;

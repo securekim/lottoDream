@@ -2,8 +2,8 @@
     "mysql": {
         "host"     : "localhost",
         "port"     : 3082,
-        "user"     : "cobe",
-        "password" : "cobe1q2w3e4r!",
+        "user"     : "makers",
+        "password" : "makers1q2w3e4r!",
         "database" : "dreamLotto"
     },
     "redis": {
