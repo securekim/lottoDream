@@ -10,8 +10,8 @@ let QUERY = {
     LOGIN_POST        : "SELECT ID, Email, NM, type, point, level, platform FROM users WHERE ID = ? and PW = ?",
     HISTORY_POST      : "INSERT INTO history(ID, History, target, point) VALUES(_GENQ_);",
     HISTORY_GET       : "SELECT SUM(point) as point FROM history WHERE id = ?",
-    DREAM_NUMBER_POST : "INSERT INTO dreams(token, id, dream, round, number, word) VALUES(_GENQ_);",
-    DREAM_NUMBER_GET  : "SELECT round, number, word, id FROM dreams WHERE token = ? and dream = ?"
+    DREAM_NUMBER_POST : "INSERT INTO dreams(token, id, dream, round, numbs, words) VALUES(_GENQ_);",
+    DREAM_NUMBER_GET  : "SELECT * FROM dreams WHERE token = ? and id = ? and dream = ?"
     //HISTORY_WS      : "INSERT INTO history(ID, History, target, point) VALUES(_GENQ_);"
 }
 
@@ -42,7 +42,7 @@ const generalQ = (query, paramArr, callback)=>{
           if (error){
             result.fail = true;
             result.error = error;
-          };
+          }
           result.rows = rows;
           callback(result);
         });

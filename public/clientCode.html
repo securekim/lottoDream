@@ -2,6 +2,25 @@
     <script src="/socket.io/socket.io.js"></script>
     <script src="/clientCode.js">TEST</script>
     <body>
+        get_dream_number("tokenExample", "꿈제목", (result) => { 
+            console.log(result); 
+             
+            if(result.status == H_SUCCESS_REQ || result.status == H_SUCCESS_MODIFY) console.log("성공 ! ");
+            else console.log("실패 ! ");
+         }) 
+
+         <br><br>
+        post_dream_number("tokenExample", "꿈제목", 155, 
+            {numArr:[2,3,42,45,6,5,7], wordArr:["가위","가방","하이","바이","응","아니"]}, 
+            (result)=>{ 
+                console.log(result); 
+            
+                if(result.status == H_SUCCESS_REQ || result.status == H_SUCCESS_MODIFY) console.log("성공 ! ");
+                else console.log("실패 ! ");
+            }) 
+
+            <br><br>
+
         register("myID", "myPW", "myEmail@email.com", "myNickName", "NA", "Web", (result)=>{
             console.table(result);
         })

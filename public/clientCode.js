@@ -13,6 +13,84 @@ const H_FAIL_NOT_ACCEPTABLE = 406;
 const H_FAIL_SERVER_ERR     = 500;
 const H_FAIL_SERVER_HACKED  = 501;
 
+//
+
+/*
+    post_dream_number 함수
+   
+   //설명
+     /dream/number 에 POST 로 요청해서 꿈 정보를 DB에 저장
+
+   //매개변수
+    token : 아이디(토큰) 
+    dream : 꿈 제목
+    round : 회차
+    data : {numArr:[숫자들], wordArr:[단어들]}
+    callback : 콜백 - {status, result}
+    
+   //사용 예제
+    post_dream_number(
+        "tokenExample", 
+         "꿈제목", 
+         155, 
+         {numArr:[2,3,42,45,6,5,7], wordArr:["가위","가방","하이","바이","응","아니"]}, 
+         (result) => 
+         { 
+            console.table(result); 
+             
+            if(result.status == H_SUCCESS_REQ || result.status == H_SUCCESS_MODIFY) console.log("성공 ! ");
+            else console.log("실패 ! ");
+         }) 
+
+   //결과 예제
+    {status: 200, result: "{"fieldCount":0,"affectedRows":1,"insertId":1,"ser…0,"message":"","protocol41":true,"changedRows":0}"}
+*/
+
+function post_dream_number(token, dream, round, data, callback){
+    console.log(data);
+    console.log(data.number);
+    console.log(data.word);
+    round = Number(round);
+    
+    GENERAL_REQ("POST", SERVER+"dream/number", {token:token, dream:dream, round:round, numArr:data.numArr, wordArr:data.wordArr}, (result)=>{
+        callback(result);
+    });
+}
+
+
+
+/*
+    get_dream_number 함수
+   
+   //설명
+     /dream/number 에 GET 로 요청해서 꿈 정보를 DB에서 불러옴
+
+   //매개변수
+    token : 아이디(토큰) 
+    dream : 꿈 제목
+    
+   //사용 예제
+    get_dream_number("tokenExample", "꿈제목", (result) => { 
+            console.log(result); 
+             
+            if(result.status == H_SUCCESS_REQ || result.status == H_SUCCESS_MODIFY) console.log("성공 ! ");
+            else console.log("실패 ! ");
+         }) 
+
+   //결과 예제
+    {status: 200, result: "[{"iddreams":2,"token":"tokenExample","id":"NULL",…s":"2,3,42,45,6,5,7","words":"가위,가방,하이,바이,응,아니"}]"}
+*/
+
+function get_dream_number(token, dream, callback){
+    GENERAL_REQ("GET", SERVER+"dream/number/"+token+"/"+dream, null, (result)=>{
+        callback(result);
+    });
+}
+
+
+
+//register("myID", "myPW", "myEmail@email.com", "myNickName", "NA", "Web", (result)=>{ console.table(result); })
+
 /*
    [Register User]
    ID : 아이디 
@@ -86,192 +164,19 @@ function logout(callback){
     socket.emit("logout");
 }
 
-/*
-   [게임 종료 후 결과 로깅하는 부분]
-   [이상한 데이터가 넘어올 시 서버에서는 해킹이라고 판단, 일단 -1점]
-   History : [{Coin: 'CoinType', Sec : 'Press Time(ms)'}, ...] 
-   target  : target
-
-   Callback(JSON) : {status, result}
-    
-   //USAGE EXAMPLE
-        writeHistory([{Coin: 500, Sec : 100}, {Coin: 100, Sec : 250}, {Coin: 100, Sec : 500}] , 700, (result)=>{
-            console.table(result);
-        };
-*/
-function writeHistory(History, target, callback){
-    GENERAL_REQ("POST", SERVER+"history", {History:History, target:target}, (result)=>{
-        callback(result);
-    });
-}
-
-/*
-   [나의 포인트 가져오는 부분]
-
-   Callback(JSON) : {status, result}
-    
-   //USAGE EXAMPLE
-        readHistory((result)=>{
-            console.table(result);
-        })
-*/
-function readHistory(callback){
-    GENERAL_REQ("GET", SERVER+"history", null, (result)=>{
-        let point = null;
-        if(result.status == H_SUCCESS_REQ){
-            try{
-                point = result.result.split(":")[1].split("}")[0]
-            }catch(e){}
-        }
-        result.result = point;
-        callback(result);
-    });
-}
-
-
-///////////////////////////WEB SOCKET ////////////////////////////
-
-var socket = io.connect(SERVER);
-
-//최초 시작시 exit 
-multi_exitRoom();
-
-socket.on('login', function (data) {
-    //Body
-    console.log("[WS] :" +JSON.stringify(data));
-});
-
-socket.on('isLoggedIn', function (data) {
-    //True / False
-    console.log("[WS] Logged In :" +JSON.stringify(data));
-});
-
-
-//방 참여의 기준은 내가 직접 방을 만들었냐 아니냐임.
-
-//이미 방에 참여 되어있던 경우 fail이 true로 옴
-function multi_getRoom(){
-    socket.emit("getRoom");
-}
-
-//이미 내가 만든 경우에는 안됨. (내가 만든 경우만)
-function multi_makeRoom(){
-    socket.emit("makeRoom");
-}
-
-//게임 룸에 혹시 들어가 있을까봐.
-function multi_exitRoom(status){
-    socket.emit("exitRoom", {status:status});
-}
-
-//내가 만든 방 기준
-socket.on('getRoom', function (data) {
-    //{"fail":false,"result":{"hostID":"myID","total":2,"IDS":["myID"],"target":null,"histories":{}}}
-    console.log("[WS] getRoom :" + JSON.stringify(data));
-});
-
-//UI 없이 그냥 방이 꽉차면 스타트게임!
-socket.on('fullRoom', function(){
-    console.log("[WS] Room is full.")
-    multi_startGame();
-})
-
-socket.on('exitRoom', function(data){
-    console.log("[WS] Escape room.", JSON.stringify(data));
-})
-
-//hostID: "myID"
-//hostNM: "myNickName"
-//level: 0
-//point: 0
-//total: 2
-//IDS: ["myID"]
-//target: 900
-
-// 내가 참여를 해놓고 새로 방을 팔 수도 있다. 
-socket.on('makeRoom', function (data) {
-    // [WS] makeRoom :{"fail":true,"result":"Your room is already exist."}
-    console.log("[WS] makeRoom :"+JSON.stringify(data));
-});
-
-//게임 시작!
-function multi_startGame(){
-    socket.emit("startGame");
-}
-
-//게임이 시작되었습니다 알림.
-socket.on('startGame', function (data) {
-    //{"fail":false,"result":{"hostID":"myID","hostNM":"myNickName","level":0,"point":0,"total":2,"IDS":["myID","myID2"],"target":600,"histories":{}}}
-    console.log("[WS] startGame :"+JSON.stringify(data));
-});
-
-//누군가 들어왔거나 나갔다.
-socket.on('playerChanged', function (data) {
-    console.log("[WS] Room info is changed  :"+JSON.stringify(data));
-    if(data.roomInfo.total <= data.roomInfo.IDS.length){
-        //방에 사람이 꽉차부렀네
-        multi_startGame();
-    }
-});
-
-//Confirm 후 History 를 서버에 보낸다. 
-//  multi_writeHistory([{Coin: 500, Sec : 100}, {Coin: 100, Sec : 250}, {Coin: 100, Sec : 500}])
-function multi_writeHistory(History){
-    socket.emit("writeHistory", History);
-}
-
-socket.on('writeHistory', function (data) {
-    console.log("[WS] writeHistory :" +JSON.stringify(data));
-});
-
-//다른사람들이 한것도 올라옴.
-socket.on('roomHistory', function(data){
-    console.log("[WS] roomHistory :" +JSON.stringify(data));
-})
-
-//게임이 종료되었다는 알림.
-socket.on('endGame', function (data) {
-    console.log("[WS] endGame :" +JSON.stringify(data));
-    multi_exitGame("endGame");
-});
-
-//방에서 나가는 용도.
-//게임 참여 후 정상 종료시 status 가 endGame
-//게임 참여 후 도중에 종료시 status 가 exitGame
-function multi_exitGame(status){
-    socket.emit("exitGame", {status:status});
-    socket.emit("exitRoom", {status:status});
-}
-
-function multi_endGame(){
-
-}
-
-function multi_coinPush(coin){
-    socket.emit("coinPush", coin);
-}
-
-socket.on('coinPush', function (data) {
-    console.log("[WS] coinPush :" +JSON.stringify(data));
-});
-
-function multi_exitRoom(){
-    socket.emit("exitRoom");
-}
 
 function GENERAL_REQ(method, url, jsonData, callback){
-    console.log("General REQ : "+method);
     let xhr = new XMLHttpRequest();
     xhr.open(method, url, true);
     xhr.setRequestHeader("Content-type", "application/json");
     xhr.onreadystatechange = () => {
-        if(xhr.readyState == 4 && typeof callback != "undefined") //여러번 호출되므로 종료시에만
+        if(xhr.readyState == 4 && typeof callback != "undefined"){ //여러번 호출되므로 종료시에만
             callback({status:xhr.status, result:xhr.responseText});
+        }
     };
     if(typeof jsonData == "undefined" || !jsonData) {
         xhr.send();
     } else {
-        console.log(jsonData);
         xhr.send(JSON.stringify(jsonData));
     }
     

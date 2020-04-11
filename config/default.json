@@ -4,7 +4,7 @@
         "port"     : 3082,
         "user"     : "cobe",
         "password" : "cobe1q2w3e4r!",
-        "database" : "cobe"
+        "database" : "dreamLotto"
     },
     "redis": {
         "client": "redis",

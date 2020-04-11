@@ -21,8 +21,9 @@ const   express         = require('express'),
 
     //////////////////////////////////
     
-    // const {
-    // } = tools;
+    const {
+        isNone,
+    } = tools;
 
     const {
         generalQ,
@@ -96,7 +97,7 @@ class RESULT {
 
 app.use(cors());
 app.use(express.json());
-app.use(express.static(__dirname + '/public')); 
+app.use(express.static(__dirname + '/public'));
 
 app.get('/', function(req, res) {
     res.sendFile(path.join(__dirname + '/public/clientCode.html'));
@@ -256,22 +257,25 @@ app.route('/history')
     {returnValue:"실행 결과",totSellamnt:"누적금",drwNo:"회차",drwNoDate:"당첨일",firstWinamnt:"1등 당첨금",firstPrzwnerCo:"1등 당첨 인원",firstAccumamnt:"1등 당첨금 총액",drwtNo1:"번호1",drwtNo2:"번호2",drwtNo3:"번호3",drwtNo4:"번호4",drwtNo5:"번호5",drwtNo6:"번호6",bnusNo:"보너스"}
     */    
    const lottoResult = {"returnValue":"실행 결과","totSellamnt":"누적금","drwNo":"회차","drwNoDate":"당첨일","firstWinamnt":"1등 당첨금","firstPrzwnerCo":"1등 당첨 인원","firstAccumamnt":"1등 당첨금 총액","drwtNo1":"번호1","drwtNo2":"번호2","drwtNo3":"번호3","drwtNo4":"번호4","drwtNo5":"번호5","drwtNo6":"번호6","bnusNo":"보너스"}
-app.route('/dream/number')
-    .get((req,res)=>{
-        if(isLogout(req)) return res.status(H_FAIL_UNAUTHORIZED).send(B_FAIL_UNAUTHORIZED);
-        let token   = req.body.token,
+
+app.get('/dream/number/:token/:dream', (req,res)=>{
+        //if(isLogout(req)) return res.status(H_FAIL_UNAUTHORIZED).send(B_FAIL_UNAUTHORIZED);
+        let token   = req.params.token,
             id      = req.session.uid,
-            dream   = req.body.dream;
-        if(isNone(token) || isNone(dream) || isNone(round) || isNone(data)){
+            dream   = req.params.dream;
+            
+        if(isNone(token) || isNone(dream)){
                 res.status(H_FAIL_BAD_REQUEST).send(B_FAIL_WEIRD_DATA);
             } else {
-                let params = [token, dream];
+                if(isNone(id)) id = "NULL";
+                let params = [token, id, dream];
+                console.log(params);
                 generalQ(QUERY.DREAM_NUMBER_GET,params,(result)=>{
                     if(result.fail){
                         res.status(H_FAIL_SERVER_ERR).send(result.error);
                     } else {
                         if(result.rows.length == 0){
-                            res.status(H_FAIL_SERVER_ERR).send(B_FAIL_SERVER_ERR);
+                            res.status(H_FAIL_NOT_FOUND).send(B_FAIL_NOT_FOUND);
                         } else {
                             res.status(H_SUCCESS_REQ).send(result.rows);
                         }
@@ -280,20 +284,29 @@ app.route('/dream/number')
             }
              
     })
-    .post((req,res)=>{
-        if(isLogout(req)) return res.status(H_FAIL_UNAUTHORIZED).send(B_FAIL_UNAUTHORIZED);
+    app.post("/dream/number",(req,res)=>{
+        //if(isLogout(req)) return res.status(H_FAIL_UNAUTHORIZED).send(B_FAIL_UNAUTHORIZED);
         let token   = req.body.token,
             id      = req.session.uid,
             dream   = req.body.dream,
             round   = req.body.round,
-            data    = req.body.data; // data.number, data.word
-
-            if(isNone(token) || isNone(dream) || isNone(round) || isNone(data)){
+            numArr = req.body.numArr,
+            wordArr   = req.body.wordArr; // data.number, data.word
+            let numbs = [];
+            let words = [];
+            
+            if(isNone(token) || isNone(dream) || isNone(round) || isNone(numArr) || isNone(wordArr)){
                 res.status(H_FAIL_BAD_REQUEST).send(B_FAIL_WEIRD_DATA);
             } else {
-                let number  = data.number;
-                let word    = data.word;
-                let params = [token, id, dream, round, number, word];
+                if(isNone(id)) id = "NULL";
+                try {
+                    numbs = numArr.join();
+                    words = wordArr.join();
+                } catch (E) {
+                    return res.status(H_FAIL_UNAUTHORIZED).send(B_FAIL_UNAUTHORIZED);
+                }
+
+                let params = [token, id, dream, round, numbs, words];
                     generalQ(QUERY.DREAM_NUMBER_POST,params,(result)=>{
                         if(result.fail){
                             res.status(H_FAIL_SERVER_ERR).send(result.error);
