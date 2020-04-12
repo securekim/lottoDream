@@ -4,7 +4,7 @@
         "port"     : 3082,
         "user"     : "makers",
         "password" : "makers1q2w3e4r!",
-        "database" : "dreamLotto"
+        "database" : "dreamlotto"
     },
     "redis": {
         "client": "redis",
