@@ -49,7 +49,9 @@ print('총 샘플의 수 :',len(train_data))
 print(train_data.isnull().values.any()) # 혹시 NULL 인게 있는지(있으면 TRUE)
 train_data = train_data.dropna(how = 'any') # Null 값이 존재하는 행 제거
 
-train_data['document'] = train_data['document'].str.replace("[^ㄱ-ㅎㅏ-ㅣ가-힣 ]","") # 한글과 공백을 제외하고 모두 제거
+korean = "[^ㄱ-ㅎㅏ-ㅣ가-힣 ]"
+
+train_data['document'] = train_data['document'].str.replace(korean,"") # 한글과 공백을 제외하고 모두 제거
 train_data['document'].replace('', np.nan, inplace=True) #NaN 제거
 train_data = train_data.dropna(how = 'any')#제거하고 null 또 제거
 print(len(train_data))
@@ -57,14 +59,14 @@ print(len(train_data))
 
 #### 테스트 데이터에도 동일하게 수행
 test_data.drop_duplicates(subset = ['document'], inplace=True) # document 열에서 중복인 내용이 있다면 중복 제거
-test_data['document'] = test_data['document'].str.replace("[^ㄱ-ㅎㅏ-ㅣ가-힣 ]","") # 정규 표현식 수행
+test_data['document'] = test_data['document'].str.replace(korean,"") # 정규 표현식 수행
 test_data['document'].replace('', np.nan, inplace=True) # 공백은 Null 값으로 변경
 test_data = test_data.dropna(how='any') # Null 값 제거
 print('전처리 후 테스트용 샘플의 개수 :',len(test_data))
 
 #### 예측 데이터에는 동일하게 수행하면 안됨.
 #predict_data.drop_duplicates(subset = ['document'], inplace=True) # document 열에서 중복인 내용이 있다면 중복 제거
-predict_data['document'] = predict_data['document'].str.replace("[^ㄱ-ㅎㅏ-ㅣ가-힣 ]","") # 정규 표현식 수행
+predict_data['document'] = predict_data['document'].str.replace(korean,"") # 정규 표현식 수행
 predict_data['document'].replace('', np.nan, inplace=True) # 공백은 Null 값으로 변경
 #predict_data = predict_data.dropna(how='any') # Null 값 제거
 print('전처리 후 예측 샘플의 개수 :',len(predict_data))
@@ -413,10 +415,6 @@ stopwords =['꿈'
 ,'하지 않도록'
 ,'않기 위하여'
 ,'때'
-,'시각'
-,'무렵'
-,'시간'
-,'동안'
 ,'어때'
 ,'어떠한'
 ,'하여금'
@@ -442,8 +440,6 @@ stopwords =['꿈'
 ,'것들'
 ,'너'
 ,'위하여'
-,'공동으로'
-,'동시에'
 ,'하기 위하여'
 ,'어찌하여'
 ,'무엇때문에'
