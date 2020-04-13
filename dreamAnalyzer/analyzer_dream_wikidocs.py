@@ -1,3 +1,4 @@
+#-*- coding:utf-8 -*-
 #https://wikidocs.net/44249
 import pandas as pd
 import urllib.request

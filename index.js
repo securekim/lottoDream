@@ -86,7 +86,8 @@ const B_FAIL_WEIRD_DATA     = "Your data is weird.";
 const B_FAIL_NOT_FOUND      = "There is no data.";
 const B_FAIL_NOT_ACCEPTABLE = "Request is not acceptable.";
 const B_FAIL_SERVER_ERR     = "Undefined feature.";
-const B_FAIL_SERVER_HACKED  = "Undefined feature.";
+const B_FAIL_SERVER_HACKED  = "Undefined feature! Your log was logged!";
+const B_FAIL_SERVER_READY   = "Server is not ready yet.";
 
 
 class RESULT {
@@ -337,10 +338,10 @@ app.get('/dream/number/:token/:dream', (req,res)=>{
             //  body: JSON.stringify(requestData)
                 }, function (err, t_res, body) {
                     if(err) {
-                        res.status(H_FAIL_SERVER_ERR).send(B_FAIL_SERVER_ERR);
+                        res.status(H_FAIL_SERVER_ERR).send(B_FAIL_SERVER_READY);
                     } else {
-                        if(t_res.statusCode != 200) res.status(t_res.statusCode).send(B_FAIL_SERVER_ERR)
-                        else res.status(H_SUCCESS_REQ).send(body.score);
+                        if(t_res.statusCode != 200) res.status(t_res.statusCode).send(B_FAIL_SERVER_READY)
+                        else res.status(H_SUCCESS_REQ).send(body);
                     }
             });
             
@@ -360,35 +361,14 @@ app.get('/dream/number/:token/:dream', (req,res)=>{
             //  body: JSON.stringify(requestData)
                 }, function (err, t_res, body) {
                     if(err) {
-                        res.status(H_FAIL_SERVER_ERR).send(B_FAIL_SERVER_ERR);
+                        res.status(H_FAIL_SERVER_ERR).send(B_FAIL_SERVER_READY);
                     } else {
-                        if(t_res.status != 200) res.status(t_res.status).send(B_FAIL_SERVER_ERR)
+                        if(t_res.status != 200) res.status(t_res.status).send(B_FAIL_SERVER_READY)
                         else res.status(H_SUCCESS_REQ).send(body);
                     }
             });
             
     })
-// app.get('/get/:value',(req,res)=>{
-//     res.send(`
-//             get value is : `+req.params.value+`
-//     `)
-// })
- 
-// app.post('/post',(req,res)=>{
-//     res.send(`
-//             post value is : `+req.body.value+`
-//     `)
-// })
-
-// app.get('/*', function(req, res) { 
-//     //todo : .. 이런거 다 삭제하기
-//     res.sendfile(req.url,function(err){
-//      if(err){
-//         console.log(err);
-//         res.status(H_FAIL_NOT_FOUND).send(B_FAIL_NOT_FOUND);
-//      }
-//     });
-//    });
    
 process.on('uncaughtException', function (err) {
 	//예상치 못한 예외 처리
