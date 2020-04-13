@@ -23,9 +23,9 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 
 #1. 데이터 로드
-#train_data = pd.read_table(join(dirname(__file__), './interpretation_train_pos_neg.txt'))
-#test_data = pd.read_table(join(dirname(__file__), './interpretation_test_pos_neg.txt'))
-#predict_data = pd.read_table(join(dirname(__file__), './interpretation_predict.txt'))
+# train_data = pd.read_table(join(dirname(__file__), './interpretation_train_pos_neg.txt'))
+# test_data = pd.read_table(join(dirname(__file__), './interpretation_test_pos_neg.txt'))
+# predict_data = pd.read_table(join(dirname(__file__), './interpretation_predict.txt'))
 
 train_data = pd.read_table(join(dirname(__file__), './datas_crawled_14300.txt'))
 test_data = pd.read_table(join(dirname(__file__), './datas_manual_5000.txt'))
@@ -697,34 +697,34 @@ loaded_model.summary()
 
 
 # 훈련과 검증 손실 그리기
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 
-history_dict = history.history
-loss = history_dict['loss']
-val_loss = history_dict['val_loss']
+# history_dict = history.history
+# loss = history_dict['loss']
+# val_loss = history_dict['val_loss']
 
-epochs = range(1, len(loss) + 1)
+# epochs = range(1, len(loss) + 1)
 
-plt.plot(epochs, loss, 'bo', label='Training loss')  # ‘bo’는 파란색 점을 의미합니다.
-plt.plot(epochs, val_loss, 'b', label='Validation loss') # ‘b’는 파란색 실선을 의미합니다.
-plt.title('Training and validation loss')
-plt.xlabel('Epochs')
-plt.ylabel('Loss')
-plt.legend()
-plt.show()
+# plt.plot(epochs, loss, 'bo', label='Training loss')  # ‘bo’는 파란색 점을 의미합니다.
+# plt.plot(epochs, val_loss, 'b', label='Validation loss') # ‘b’는 파란색 실선을 의미합니다.
+# plt.title('Training and validation loss')
+# plt.xlabel('Epochs')
+# plt.ylabel('Loss')
+# plt.legend()
+# plt.show()
 
 # 훈련과 손실 정확도 그리기
-plt.clf() # 그래프를 초기화합니다.
-acc = history_dict['acc']
-val_acc = history_dict['val_acc']
+# plt.clf() # 그래프를 초기화합니다.
+# acc = history_dict['acc']
+# val_acc = history_dict['val_acc']
 
-plt.plot(epochs, acc, 'bo', label='Training acc')
-plt.plot(epochs, val_acc, 'b', label='Validation acc')
-plt.title('Training and validation accuracy')
-plt.xlabel('Epochs')
-plt.ylabel('Accuracy')
-plt.legend()
-plt.show()
+# plt.plot(epochs, acc, 'bo', label='Training acc')
+# plt.plot(epochs, val_acc, 'b', label='Validation acc')
+# plt.title('Training and validation accuracy')
+# plt.xlabel('Epochs')
+# plt.ylabel('Accuracy')
+# plt.legend()
+# plt.show()
 
 
 ## 실제로 predict 해보자
