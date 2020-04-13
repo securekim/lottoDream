@@ -20,6 +20,14 @@ os.environ['PYTHONHASHSEED'] = '0'
 #os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
+essential_tags = ['Noun', 'Adjective', 'Verb', 'Adverb'] # 수집할 태그
+def only_es_tags(arr):
+    resultlist = []
+    for word in arr:
+        for essential in essential_tags:
+            if essential in word:
+                resultlist.append(word)
+    return resultlist
 
 
 #1. 데이터 로드
@@ -27,17 +35,19 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 # test_data = pd.read_table(join(dirname(__file__), './interpretation_test_pos_neg.txt'))
 # predict_data = pd.read_table(join(dirname(__file__), './interpretation_predict.txt'))
 
-train_data = pd.read_table(join(dirname(__file__), './datas_crawled_14300.txt'))
-test_data = pd.read_table(join(dirname(__file__), './datas_manual_5000.txt'))
-predict_data = pd.read_table(join(dirname(__file__), './datas_manual_1300.txt'))
+# train_data = pd.read_table(join(dirname(__file__), './datas_crawled_14300.txt'))
+# test_data = pd.read_table(join(dirname(__file__), './datas_manual_5000.txt'))
+# predict_data = pd.read_table(join(dirname(__file__), './datas_manual_1300.txt'))
 
+train_data = pd.read_table(join(dirname(__file__), './datas_crawled_14300.txt'))
+test_data = pd.read_table(join(dirname(__file__), './datas_merged_6300.txt'))
 
 #train_data = pd.read_table('ratings_train.txt')
 #test_data = pd.read_table('ratings_test.txt')
 
 print('훈련용 해몽 개수 :',len(train_data))
 print('테스트용 해몽 개수 :',len(test_data)) # 테스트용 리뷰 개수 출력
-print('예측용 해몽 개수 :',len(predict_data))
+#print('예측용 해몽 개수 :',len(predict_data))
 
 #2. 데이터 정제 (중복항목제거)
 train_data['document'].nunique(), train_data['label'].nunique()
@@ -64,500 +74,23 @@ test_data['document'].replace('', np.nan, inplace=True) # 공백은 Null 값으�
 test_data = test_data.dropna(how='any') # Null 값 제거
 print('전처리 후 테스트용 샘플의 개수 :',len(test_data))
 
-#### 예측 데이터에는 동일하게 수행하면 안됨.
-#predict_data.drop_duplicates(subset = ['document'], inplace=True) # document 열에서 중복인 내용이 있다면 중복 제거
-predict_data['document'] = predict_data['document'].str.replace(korean,"") # 정규 표현식 수행
-predict_data['document'].replace('', np.nan, inplace=True) # 공백은 Null 값으로 변경
-#predict_data = predict_data.dropna(how='any') # Null 값 제거
-print('전처리 후 예측 샘플의 개수 :',len(predict_data))
+# #### 예측 데이터에는 동일하게 수행하면 안됨.
+# #predict_data.drop_duplicates(subset = ['document'], inplace=True) # document 열에서 중복인 내용이 있다면 중복 제거
+# predict_data['document'] = predict_data['document'].str.replace(korean,"") # 정규 표현식 수행
+# predict_data['document'].replace('', np.nan, inplace=True) # 공백은 Null 값으로 변경
+# #predict_data = predict_data.dropna(how='any') # Null 값 제거
+# print('전처리 후 예측 샘플의 개수 :',len(predict_data))
+
 
 # 3. 토큰화
 #train_data에 형태소 분석기를 사용하여 토큰화를 하면서 불용어를 제거하여 X_train에 저장합니다.
-stopwords =['꿈'
-,'아이구'
-,'아이쿠'
-,'아이고'
-,'우리'
-,'저희'
-,'따라'
-,'의해'
-,'을'
-,'를'
-,'에'
-,'의'
-,'가'
-,'으로'
-,'로'
-,'에게'
-,'뿐이다'
-,'의거하여'
-,'근거하여'
-,'입각하여'
-,'기준으로'
-,'예하면'
-,'예를 들면'
-,'예를 들자면'
-,'저'
-,'저희'
-,'지말고'
-,'하지마'
-,'하지마라'
-,'다른'
-,'물론'
-,'또한'
-,'그리고'
-,'비길수 없다'
-,'해서는 안된다'
-,'뿐만 아니라'
-,'만이 아니다'
-,'만은 아니다'
-,'막론하고'
-,'관계없이'
-,'그치지 않다'
-,'그러나'
-,'그런데'
-,'하지만'
-,'든간에'
-,'비록'
-,'더라도'
-,'아니면'
-,'만 못하다'
-,'하는 편이 낫다'
-,'틈타'
-,'타다'
-,'오르다'
-,'제외하고'
-,'이 외에'
-,'이 밖에'
-,'하여야'
-,'비로소'
-,'한다면 몰라도'
-,'외에도'
-,'이곳'
-,'여기'
-,'부터'
-,'할 생각이다'
-,'하려고하다'
-,'이리하여'
-,'그리하여'
-,'그렇게 함으로써'
-,'일때'
-,'할때'
-,'중에서'
-,'으로써'
-,'로써'
-,'까지'
-,'해야한다'
-,'일것이다'
-,'반드시'
-,'임에 틀림없다'
-,'등'
-,'등등'
-,'제'
-,'다만'
-,'할뿐'
-,'댕그'
-,'대해서'
-,'대하여'
-,'대하면'
-,'얼마나'
-,'얼마만큼'
-,'얼마큼'
-,'남짓'
-,'여'
-,'얼마간'
-,'몇'
-,'얼마'
-,'지만'
-,'하물며'
-,'또한'
-,'그러나'
-,'그렇지만'
-,'하지만'
-,'이외에도'
-,'대해 말하자면'
-,'뿐이다'
-,'다음에'
-,'바꾸어서 말하면'
-,'바꾸어서 한다면'
-,'만약'
-,'그렇지않으면'
-,'보드득'
-,'응당'
-,'해야한다'
-,'에 가서'
-,'여러분'
-,'각종'
-,'제각기'
-,'와'
-,'과'
-,'그러므로'
-,'그래서'
-,'고로'
-,'한 까닭에'
-,'하기 때문에'
-,'거니와'
-,'이지만'
-,'대하여'
-,'관하여'
-,'관한'
-,'과연'
-,'실로'
-,'아니나다를까'
-,'한적이있다'
-,'하곤하였다'
-,'아하'
-,'거바'
-,'와'
-,'오'
-,'왜'
-,'어째서'
-,'무엇때문에'
-,'어찌'
-,'하겠는가'
-,'무슨'
-,'어디'
-,'어느곳'
-,'더군다나'
-,'하물며'
-,'더욱이는'
-,'어느때'
-,'언제'
-,'야'
-,'이봐'
-,'어이'
-,'여보시오'
-,'휴'
-,'여차'
-,'어기여차'
-,'앗'
-,'솨'
-,'그래도'
-,'또'
-,'그리고'
-,'바꾸어말하면'
-,'바꾸어말하자면'
-,'혹은'
-,'혹시'
-,'답다'
-,'및'
-,'그에 따르는'
-,'즉'
-,'지든지'
-,'설령'
-,'가령'
-,'하더라도'
-,'할지라도'
-,'일지라도'
-,'지든지'
-,'몇'
-,'거의'
-,'하마터면'
-,'인젠'
-,'이젠'
-,'된바에야'
-,'된이상'
-,'만큼'
-,'그위에'
-,'게다가'
-,'점에서 보아'
-,'비추어 보아'
-,'고려하면'
-,'하게될것이다'
-,'일것이다'
-,'좀'
-,'비하면'
-,'연이서'
-,'이어서'
-,'잇따라'
-,'뒤이어'
-,'의지하여'
-,'기대여'
-,'통하여'
-,'자마자'
-,'더욱더'
-,'밖에 안된다'
-,'하면된다'
-,'그래'
-,'그렇지'
-,'요컨대'
-,'다시 말하자면'
-,'바꿔 말하면'
-,'즉'
-,'구체적으로'
-,'말하자면'
-,'시초에'
-,'허'
-,'헉'
-,'허걱'
-,'바와같이'
-,'더구나'
-,'하물며'
-,'동안'
-,'이래'
-,'하고있었다'
-,'이었다'
-,'에서'
-,'로부터'
-,'까지'
-,'예하면'
-,'했어요'
-,'해요'
-,'마저'
-,'습니다'
-,'가까스로'
-,'하려고하다'
-,'즈음하여'
-,'다른 방면으로'
-,'해봐요'
-,'습니까'
-,'했어요'
-,'말할것도 없고'
-,'무릎쓰고'
-,'개의치않고'
-,'하는것만 못하다'
-,'하는것이 낫다'
-,'매'
-,'매번'
-,'들'
-,'모'
-,'어느것'
-,'어느'
-,'로써'
-,'갖고말하자면'
-,'어디'
-,'어느쪽'
-,'어느것'
-,'어느해'
-,'어느 년도'
-,'라 해도'
-,'언젠가'
-,'어떤것'
-,'어느것'
-,'저기'
-,'저쪽'
-,'저것'
-,'그때'
-,'그럼'
-,'그러면'
-,'요만한걸'
-,'그래'
-,'그때'
-,'저것만큼'
-,'그저'
-,'이르기까지'
-,'할 줄 안다'
-,'할 힘이 있다'
-,'너'
-,'너희'
-,'당신'
-,'어찌'
-,'설마'
-,'할지언정'
-,'할지라도'
-,'할망정'
-,'할지언정'
-,'쳇'
-,'의거하여'
-,'근거하여'
-,'의해'
-,'따라'
-,'힘입어'
-,'그'
-,'다음'
-,'버금'
-,'두번째로'
-,'기타'
-,'첫번째로'
-,'나머지는'
-,'그중에서'
-,'견지에서'
-,'위해서'
-,'단지'
-,'의해되다'
-,'하도록시키다'
-,'뿐만아니라'
-,'반대로'
-,'앞의것'
-,'잠시'
-,'잠깐'
-,'하면서'
-,'그렇지만'
-,'다음에'
-,'그러한즉'
-,'그런즉'
-,'남들'
-,'아무거나'
-,'어찌하든지'
-,'같다'
-,'비슷하다'
-,'예컨대'
-,'이럴정도로'
-,'어떻게'
-,'만약'
-,'만일'
-,'위에서 서술한바와같이'
-,'인 듯하다'
-,'하지 않는다면'
-,'만약에'
-,'무엇'
-,'무슨'
-,'어느'
-,'어떤'
-,'아래윗'
-,'조차'
-,'한데'
-,'그럼에도 불구하고'
-,'여전히'
-,'심지어'
-,'까지도'
-,'조차도'
-,'하지 않도록'
-,'않기 위하여'
-,'때'
-,'어때'
-,'어떠한'
-,'하여금'
-,'네'
-,'예'
-,'우선'
-,'누구'
-,'누가 알겠는가'
-,'아무도'
-,'줄은모른다'
-,'줄은 몰랏다'
-,'하는 김에'
-,'겸사겸사'
-,'하는바'
-,'그런 까닭에'
-,'한 이유는'
-,'그러니'
-,'그러니까'
-,'그'
-,'너희'
-,'너희들'
-,'것'
-,'것들'
-,'너'
-,'위하여'
-,'하기 위하여'
-,'어찌하여'
-,'무엇때문에'
-,'나'
-,'우리'
-,'엉엉'
-,'오호'
-,'아하'
-,'어쨋든'
-,'만 못하다'
-,'차라리'
-,'하는 편이 낫다'
-,'상대적으로 말하자면'
-,'마치'
-,'아니라면'
-,'쉿'
-,'그렇지 않으면'
-,'그렇지 않다면'
-,'안 그러면'
-,'아니었다면'
-,'하든지'
-,'아니면'
-,'이라면'
-,'알았어'
-,'하는것도'
-,'그만이다'
-,'어쩔수 없다'
-,'하나'
-,'일'
-,'일반적으로'
-,'일단'
-,'한켠으로는'
-,'이렇게되면'
-,'이와같다면'
-,'전부'
-,'한마디'
-,'한항목'
-,'근거로'
-,'하기에'
-,'아울러'
-,'이르기까지'
-,'이 되다'
-,'로 인하여'
-,'까닭으로'
-,'이로 인하여'
-,'그래서'
-,'이 때문에'
-,'그러므로'
-,'그런 까닭에'
-,'알 수 있다'
-,'으로 인하여'
-,'있다'
-,'어떤것'
-,'어떤것들'
-,'에 대해'
-,'이리하여'
-,'그리하여'
-,'하기보다는'
-,'하느니'
-,'하면 할수록'
-,'운운'
-,'이러이러하다'
-,'하구나'
-,'하도다'
-,'다시말하면'
-,'다음으로'
-,'에 있다'
-,'에 달려 있다'
-,'우리'
-,'우리들'
-,'하기는한데'
-,'어떻게'
-,'어떻해'
-,'어찌됏어'
-,'어때'
-,'어째서'
-,'본대로'
-,'자'
-,'이'
-,'이쪽'
-,'여기'
-,'이것'
-,'이번'
-,'이렇게말하자면'
-,'이런'
-,'이러한'
-,'이와 같은'
-,'이와 같다'
-,'이렇구나'
-,'것과 같이'
-,'따위'
-,'와 같은 사람들'
-,'왜냐하면'
-,'중의하나'
-,'에 한하다'
-,'하기만 하면'
-,'관해서는'
-,'여러분'
-,'우에 종합한것과같이'
-,'총적으로 보면'
-,'총적으로 말하면'
-,'대로 하다'
-,'참'
-,'그만이다'
-,'할 따름이다'
-,'봐'
-,'봐라'
-,'아니'
-,'응'
-,'참나'
-]
 
 X_train = []
 okt = Okt()
 for sentence in train_data['document']:
     temp_X = []
-    temp_X = okt.morphs(sentence, stem=True) # 토큰화
-    temp_X = [word for word in temp_X if not word in stopwords] # 불용어 제거
+    temp_X = okt.pos(sentence, stem=True, join=True) # 토큰화
+    temp_X = only_es_tags(temp_X) #[word for word in temp_X if not word in stopwords] # 불용어 제거
     X_train.append(temp_X)
 
 print(X_train[:3])
@@ -566,18 +99,18 @@ print(X_train[:3])
 X_test = []
 for sentence in test_data['document']:
     temp_X = []
-    temp_X = okt.morphs(sentence, stem=True) # 토큰화
-    temp_X = [word for word in temp_X if not word in stopwords] # 불용어 제거
+    temp_X = okt.pos(sentence, stem=True, join=True) # 토큰화
+    temp_X = only_es_tags(temp_X) # 불용어 제거
     X_test.append(temp_X)
 
     
-#예측 데이터에도 수행
-X_predict = []
-for sentence in predict_data['document']:
-    temp_X = []
-    temp_X = okt.morphs(sentence, stem=True) # 토큰화
-    temp_X = [word for word in temp_X if not word in stopwords] # 불용어 제거
-    X_predict.append(temp_X)
+# #예측 데이터에도 수행
+# X_predict = []
+# for sentence in predict_data['document']:
+#     temp_X = []
+#     temp_X = okt.pos(sentence, stem=True, join=True) # 토큰화
+#     temp_X = [word for word in temp_X if not word in stopwords] # 불용어 제거
+#     X_predict.append(temp_X)
 
 # 정수 인코딩
 tokenizer = Tokenizer()
@@ -614,11 +147,11 @@ tokenizer = Tokenizer(vocab_size)
 tokenizer.fit_on_texts(X_train)
 X_train = tokenizer.texts_to_sequences(X_train)
 X_test = tokenizer.texts_to_sequences(X_test)
-X_predict = tokenizer.texts_to_sequences(X_predict)
+# X_predict = tokenizer.texts_to_sequences(X_predict)
 
 y_train = np.array(train_data['label'])
 y_test = np.array(test_data['label'])
-y_predict = np.array(predict_data['label'])
+# y_predict = np.array(predict_data['label'])
 
 #5. 빈 샘플 제거
 drop_train = [index for index, sentence in enumerate(X_train) if len(sentence) < 1]
@@ -640,8 +173,8 @@ print("테스트 : "+str(len(y_test)))
 # 예측 빈 샘플 제거
 # X_predict = np.delete(X_predict, drop_predict, axis=0)
 # y_predict = np.delete(y_predict, drop_predict, axis=0)
-print("예측 : "+str(len(X_predict)))
-print("예측 : "+str(len(y_predict)))
+# print("예측 : "+str(len(X_predict)))
+# print("예측 : "+str(len(y_predict)))
 
 # 6. 패딩
 print('해몽의 최대 길이 :',max(len(l) for l in X_train))
@@ -667,7 +200,7 @@ below_threshold_len(max_len, X_train)
 
 X_train = pad_sequences(X_train, maxlen = max_len)
 X_test = pad_sequences(X_test, maxlen = max_len)
-X_predict = pad_sequences(X_predict, maxlen = max_len)
+# X_predict = pad_sequences(X_predict, maxlen = max_len)
 
 ###### LSTM 으로 분류
 
@@ -728,12 +261,45 @@ loaded_model.summary()
 
 
 ## 실제로 predict 해보자
-xhat = loaded_model.predict(X_predict)
-xhatc = loaded_model.predict_classes(X_predict)
-np.set_printoptions(suppress=True)
-np.set_printoptions(formatter={'float_kind': lambda x: "{0:0.3f}".format(x)})
-x = np.array(xhat)
-xc = np.array(xhatc)
-np.savetxt("predictedData.txt", x)
-np.savetxt("predictedData_class.txt", xc)
+# xhat = loaded_model.predict(X_predict)
+# xhatc = loaded_model.predict_classes(X_predict)
+# np.set_printoptions(suppress=True)
+# np.set_printoptions(formatter={'float_kind': lambda x: "{0:0.3f}".format(x)})
+# x = np.array(xhat)
+# xc = np.array(xhatc)
+# np.savetxt("predictedData.txt", x)
+# np.savetxt("predictedData_class.txt", xc)
 
+def predict_dream(dream):
+    dream.replace(korean,"")
+    #dream.replace('', np.nan, inplace=True)
+    x_predict_dream = []
+    temp_x = []
+    temp_x = okt.pos(dream, stem=True, join=True) # 토큰화
+    temp_x = only_es_tags(temp_x) # 불용어 제거
+    print("[{}] \n    주요 형태소 분석 : ".format(dream), temp_x)
+    x_predict_dream.append(temp_x)
+    x_predict_dream = tokenizer.texts_to_sequences(x_predict_dream)
+    x_predict_dream = pad_sequences(x_predict_dream, maxlen = 500) # 500으로 늘려주자
+    score = float(loaded_model.predict(x_predict_dream))
+    return score
+    # if(score > 0.5):
+    #     print("    길몽의 기운이 더 많습니다. 길몽력 : {:.2f}% \n    현재 정확도 : 71.90% ~ 87.53%".format(score * 100))
+    # else:
+    #     print("    흉몽의 기운이 더 많습니다. 흉몽력 : {:.2f}% \n    현재 정확도 : 71.90% ~ 87.53%".format((1 - score) * 100))
+
+predict_dream("똥을 먹는 꿈이었어요.") #길
+predict_dream("똥을 뒤집어쓰고 손으로 만졌어요.") #길
+predict_dream("싸이코패스 할아버지가 나와서 다른 사람들을 죽였습니다.") #길
+predict_dream("돈에 깔려 죽었습니다.") #길
+predict_dream("꿈에 돼지가 나왔는데 꿀꿀거리면서 돌아다니더라구요.") #길
+predict_dream("돼지를 안고 있었어요.") #길
+predict_dream("집이 불에 타버렸는데 저는 가까스로 탈출 했어요.") #길
+predict_dream("비행기를 타고 해외로 나갔어요.") #길
+predict_dream("엄청 큰 두꺼비가 맑은 물에 있었어요.") #길
+predict_dream("조상님이 찾아와서 돈을 주셨어요.") #길
+predict_dream("아기를 많이 낳았어요.") #길
+predict_dream("잘 자란 싱싱한 무가 집안에 가득 차 있었어요.") #길
+predict_dream("칼에 찔려서 피가 많이 났어요.") #길
+predict_dream("꿈에 돼지가 나왔는데 저를 공격했습니다.") #흉
+predict_dream("집에 불이 났는데 힘들게 불을 껐어요.") #흉
