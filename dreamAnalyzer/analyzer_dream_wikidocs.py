@@ -35,12 +35,8 @@ def only_es_tags(arr):
 # test_data = pd.read_table(join(dirname(__file__), './interpretation_test_pos_neg.txt'))
 # predict_data = pd.read_table(join(dirname(__file__), './interpretation_predict.txt'))
 
-# train_data = pd.read_table(join(dirname(__file__), './datas_crawled_14300.txt'))
-# test_data = pd.read_table(join(dirname(__file__), './datas_manual_5000.txt'))
-# predict_data = pd.read_table(join(dirname(__file__), './datas_manual_1300.txt'))
-
-train_data = pd.read_table(join(dirname(__file__), './datas_crawled_14300.txt'))
-test_data = pd.read_table(join(dirname(__file__), './datas_merged_6300.txt'))
+train_data = pd.read_table(join(dirname(__file__), './datas_merged_19300.txt'))
+test_data = pd.read_table(join(dirname(__file__), './datas_manual_1300.txt'))
 
 #train_data = pd.read_table('ratings_train.txt')
 #test_data = pd.read_table('ratings_test.txt')
@@ -73,14 +69,6 @@ test_data['document'] = test_data['document'].str.replace(korean,"") # 정규 �
 test_data['document'].replace('', np.nan, inplace=True) # 공백은 Null 값으로 변경
 test_data = test_data.dropna(how='any') # Null 값 제거
 print('전처리 후 테스트용 샘플의 개수 :',len(test_data))
-
-# #### 예측 데이터에는 동일하게 수행하면 안됨.
-# #predict_data.drop_duplicates(subset = ['document'], inplace=True) # document 열에서 중복인 내용이 있다면 중복 제거
-# predict_data['document'] = predict_data['document'].str.replace(korean,"") # 정규 표현식 수행
-# predict_data['document'].replace('', np.nan, inplace=True) # 공백은 Null 값으로 변경
-# #predict_data = predict_data.dropna(how='any') # Null 값 제거
-# print('전처리 후 예측 샘플의 개수 :',len(predict_data))
-
 
 # 3. 토큰화
 #train_data에 형태소 분석기를 사용하여 토큰화를 하면서 불용어를 제거하여 X_train에 저장합니다.
@@ -116,7 +104,6 @@ for sentence in test_data['document']:
 tokenizer = Tokenizer()
 tokenizer.fit_on_texts(X_train)
 #print(tokenizer.word_index)
-
 
 #빈도수만큼 제거하는 코드
 #단어 빈도 threshold회 미만
@@ -270,14 +257,16 @@ loaded_model.summary()
 # np.savetxt("predictedData.txt", x)
 # np.savetxt("predictedData_class.txt", xc)
 
-def predict_dream(dream):
+def analyze_dream(dream):
     dream.replace(korean,"")
-    #dream.replace('', np.nan, inplace=True)
-    x_predict_dream = []
     temp_x = []
     temp_x = okt.pos(dream, stem=True, join=True) # 토큰화
     temp_x = only_es_tags(temp_x) # 불용어 제거
-    print("[{}] \n    주요 형태소 분석 : ".format(dream), temp_x)
+    return temp_x
+
+def predict_dream(dream):
+    temp_x = analyze_dream(dream)
+    x_predict_dream = []
     x_predict_dream.append(temp_x)
     x_predict_dream = tokenizer.texts_to_sequences(x_predict_dream)
     x_predict_dream = pad_sequences(x_predict_dream, maxlen = 500) # 500으로 늘려주자
@@ -288,18 +277,62 @@ def predict_dream(dream):
     # else:
     #     print("    흉몽의 기운이 더 많습니다. 흉몽력 : {:.2f}% \n    현재 정확도 : 71.90% ~ 87.53%".format((1 - score) * 100))
 
-predict_dream("똥을 먹는 꿈이었어요.") #길
-predict_dream("똥을 뒤집어쓰고 손으로 만졌어요.") #길
-predict_dream("싸이코패스 할아버지가 나와서 다른 사람들을 죽였습니다.") #길
-predict_dream("돈에 깔려 죽었습니다.") #길
-predict_dream("꿈에 돼지가 나왔는데 꿀꿀거리면서 돌아다니더라구요.") #길
-predict_dream("돼지를 안고 있었어요.") #길
-predict_dream("집이 불에 타버렸는데 저는 가까스로 탈출 했어요.") #길
-predict_dream("비행기를 타고 해외로 나갔어요.") #길
-predict_dream("엄청 큰 두꺼비가 맑은 물에 있었어요.") #길
-predict_dream("조상님이 찾아와서 돈을 주셨어요.") #길
-predict_dream("아기를 많이 낳았어요.") #길
-predict_dream("잘 자란 싱싱한 무가 집안에 가득 차 있었어요.") #길
-predict_dream("칼에 찔려서 피가 많이 났어요.") #길
-predict_dream("꿈에 돼지가 나왔는데 저를 공격했습니다.") #흉
-predict_dream("집에 불이 났는데 힘들게 불을 껐어요.") #흉
+# predict_dream("똥을 먹는 꿈이었어요.") #길
+# predict_dream("똥을 뒤집어쓰고 손으로 만졌어요.") #길
+# predict_dream("싸이코패스 할아버지가 나와서 다른 사람들을 죽였습니다.") #길
+# predict_dream("돈에 깔려 죽었습니다.") #길
+# predict_dream("꿈에 돼지가 나왔는데 꿀꿀거리면서 돌아다니더라구요.") #길
+# predict_dream("돼지를 안고 있었어요.") #길
+# predict_dream("집이 불에 타버렸는데 저는 가까스로 탈출 했어요.") #길
+# predict_dream("비행기를 타고 해외로 나갔어요.") #길
+# predict_dream("엄청 큰 두꺼비가 맑은 물에 있었어요.") #길
+# predict_dream("조상님이 찾아와서 돈을 주셨어요.") #길
+# predict_dream("아기를 많이 낳았어요.") #길
+# predict_dream("잘 자란 싱싱한 무가 집안에 가득 차 있었어요.") #길
+# predict_dream("칼에 찔려서 피가 많이 났어요.") #길
+# predict_dream("꿈에 돼지가 나왔는데 저를 공격했습니다.") #흉
+# predict_dream("집에 불이 났는데 힘들게 불을 껐어요.") #흉
+
+
+from flask import Flask
+from flask_restful import Resource, Api
+from flask_restful import reqparse
+ 
+app = Flask(__name__)
+api = Api(app)
+class dreamScore(Resource):
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('dream', type=str)
+        #parser.add_argument('email', type=str)
+        args = parser.parse_args()
+ 
+        dream = args['dream']
+        score = predict_dream(dream)
+        print("dream : ", dream, " score : ", score)
+        #email = args['email']
+        #return {'name': name , 'email' : email}
+        return {'score' : score}
+ 
+class dreamAnalyze(Resource):
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('dream', type=str)
+        #parser.add_argument('email', type=str)
+        args = parser.parse_args()
+ 
+        dream = args['dream']
+        analized = analyze_dream(dream)
+        print("morph : ", dream, " analized : ", analized)
+        #email = args['email']
+        #return {'name': name , 'email' : email}
+        return {'morph' : analized}
+
+api.add_resource(dreamScore, '/dreamScore')
+api.add_resource(dreamAnalyze, '/dreamAnalyze')
+ 
+if __name__ == '__main__':
+    app.run()
+
+
+

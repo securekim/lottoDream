@@ -7,6 +7,8 @@ const   express         = require('express'),
         path            = require('path'),
         fs              = require('fs'),
         crypto          = require('crypto');
+        var request     = require('request');
+ 
     ///////////////////////////////
 
     const session = require('express-session');
@@ -321,7 +323,51 @@ app.get('/dream/number/:token/:dream', (req,res)=>{
             }
     })
 
+    app.post("/dream/score",(req,res)=>{
+        let token   = req.body.token,
+            id      = req.session.uid,
+            dream   = req.body.dream
+            request({
+                url: 'http://127.0.0.1:5000/dreamScore',
+                method: "POST",
+                headers: {
+                    "content-type": "application/json",
+                    },
+                json: {"dream":dream}
+            //  body: JSON.stringify(requestData)
+                }, function (err, t_res, body) {
+                    if(err) {
+                        res.status(H_FAIL_SERVER_ERR).send(B_FAIL_SERVER_ERR);
+                    } else {
+                        if(t_res.statusCode != 200) res.status(t_res.statusCode).send(B_FAIL_SERVER_ERR)
+                        else res.status(H_SUCCESS_REQ).send(body.score);
+                    }
+            });
+            
+    })
 
+    app.post("/dream/analyze",(req,res)=>{
+        let token   = req.body.token,
+            id      = req.session.uid,
+            dream   = req.body.dream
+            request({
+                url: 'http://127.0.0.1:5000/dreamAnalyze',
+                method: "POST",
+                headers: {
+                    "content-type": "application/json",
+                    },
+                json: {"dream":dream}
+            //  body: JSON.stringify(requestData)
+                }, function (err, t_res, body) {
+                    if(err) {
+                        res.status(H_FAIL_SERVER_ERR).send(B_FAIL_SERVER_ERR);
+                    } else {
+                        if(t_res.status != 200) res.status(t_res.status).send(B_FAIL_SERVER_ERR)
+                        else res.status(H_SUCCESS_REQ).send(body);
+                    }
+            });
+            
+    })
 // app.get('/get/:value',(req,res)=>{
 //     res.send(`
 //             get value is : `+req.params.value+`

@@ -2,6 +2,10 @@
     <script src="/socket.io/socket.io.js"></script>
     <script src="/clientCode.js">TEST</script>
     <body>
+        post_dream_score("tokenExample", "똥 밟는 꿈", (result)=>{
+            console.log(result);
+        })
+        <br><br>
         get_dream_number("tokenExample", "꿈제목", (result) => { 
             console.log(result); 
              
@@ -9,7 +13,7 @@
             else console.log("실패 ! ");
          }) 
 
-         <br><br>
+        <br><br>
         post_dream_number("tokenExample", "꿈제목", 155, 
             {numArr:[2,3,42,45,6,5,7], wordArr:["가위","가방","하이","바이","응","아니"]}, 
             (result)=>{ 

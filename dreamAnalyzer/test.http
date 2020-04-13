@@ -1,0 +1,15 @@
+
+POST http://127.0.0.1:5000/dreamScore HTTP/1.1
+content-type: application/json
+
+{
+    "dream": "아기"
+}
+
+
+POST http://127.0.0.1:5000/dreamAnalyze HTTP/1.1
+content-type: application/json
+
+{
+    "dream": "아까운 똥을 버렸다."
+}

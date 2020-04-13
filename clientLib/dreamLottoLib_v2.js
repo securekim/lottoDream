@@ -1,6 +1,6 @@
 //해당 단어에 해당하는 단어 배열을 중복 없이 전달해 줌
 //우선순위 : 검색어가 앞에 있는 단어
-var searchWord = (data, notIncludeArr) =>{
+const searchWord = (data, notIncludeArr) =>{
 	let strArray = [];
 	let firstOrder = [];
 	let lastOrder = [];
@@ -27,7 +27,7 @@ var searchWord = (data, notIncludeArr) =>{
 	return arrayWithKey(Array.from(new Set(strArray)));
 }
 
-var arrayWithKey = (array) =>{
+const arrayWithKey = (array) =>{
 	let ret = [];
 	for(var i in array){
 		ret.push({key:array[i]});
@@ -36,7 +36,7 @@ var arrayWithKey = (array) =>{
 }
 
 //해당 단어에 해당하는 숫자 배열을 중복 없이 전달해 줌
-var selectWord = (data) =>{
+const selectWord = (data) =>{
 	let numArrays = [];
 	if(!data) return numArrays;
 	
@@ -53,7 +53,7 @@ var selectWord = (data) =>{
 // 2. 검색된 숫자가 7개 미만인 경우 : 모자란 숫자만큼 숫자를 생성해 줌. 
 //					동일한 단어 배열일 경우 확정적으로 항상 동일한 숫자를 주도록 함.
 // 					대신 단어 시드가 필요한 숫자보다 부족하면 완전 랜덤 생성함.
-var generateLotto = (datas) =>{
+const generateLotto = (datas) =>{
 	let generated = [];
 	for(var i in datas){
 		generated = generated.concat(selectWord(datas[i]));
@@ -80,7 +80,7 @@ var generateLotto = (datas) =>{
 	return getBonusWithArray(generated)
 }
 
-var getBonusWithArray = (array) => {
+const getBonusWithArray = (array) => {
 	array.sort(function(a, b) { // 오름차순
 		return a - b;
 	});
@@ -91,7 +91,7 @@ var getBonusWithArray = (array) => {
 }
 
 // 배열 랜덤하게 셔플해주는 함수
-var shuffleArray = (array) => {
+const shuffleArray = (array) => {
     for (var i = array.length - 1; i > 0; i--) {
         var j = Math.floor(Math.random() * (i + 1));
         var temp = array[i];
@@ -114,7 +114,7 @@ String.prototype.lotto = function() {
   return Math.abs(hash) %45 +1 // 1 ~ 45
 };
 
-var word2Lotto = (str) => {
+const word2Lotto = (str) => {
 	var hash = 0, i, chr;
   if (str.length === 0) return hash;
   for (i = 0; i < str.length; i++) {
@@ -128,7 +128,7 @@ var word2Lotto = (str) => {
 
 //중복 숫자 소리 좀 안나게 해라!
 //제약사항 : 파라미터 둘 다 1 ~ 45 까지의 숫자 여야 함.
-var deldup = (num, DoNotDupNumArr) =>{
+const deldup = (num, DoNotDupNumArr) =>{
 //리턴값 : DoNotDupNumArr 목록에 없는 숫자(항상 같은 결과).
 	if(DoNotDupNumArr.indexOf(num) == -1) return num;
 	

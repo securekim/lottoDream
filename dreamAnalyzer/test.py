@@ -1,51 +1,76 @@
 
-korean = "[^ㄱ-ㅎㅏ-ㅣ가-힣 ]"
-import numpy as np
-from konlpy.tag import Okt
-from tensorflow.keras.preprocessing.text import Tokenizer
-from tensorflow.keras.preprocessing.sequence import pad_sequences
-from tensorflow.keras.models import load_model
-# okt = Okt()
-# stopwords = ["꿈", "할아버지"]
-# tokenizer = Tokenizer()
-# loaded_model = load_model('best_model2.h5')
+# korean = "[^ㄱ-ㅎㅏ-ㅣ가-힣 ]"
+# import numpy as np
+# from konlpy.tag import Okt
+# from tensorflow.keras.preprocessing.text import Tokenizer
+# from tensorflow.keras.preprocessing.sequence import pad_sequences
+# from tensorflow.keras.models import load_model
+# # okt = Okt()
+# # stopwords = ["꿈", "할아버지"]
+# # tokenizer = Tokenizer()
+# # loaded_model = load_model('best_model2.h5')
 
-# def predict_dream(dream):
-#     dream.replace(korean,"")
-#     #dream.replace('', np.nan, inplace=True)
-#     x_predict_dream = []
-#     temp_x = []
-#     temp_x = okt.morphs(dream, stem=True) # 토큰화
-#     temp_x = [word for word in temp_x if not word in stopwords] # 불용어 제거
-#     x_predict_dream.append(temp_x)
-#     x_predict_dream = tokenizer.texts_to_sequences(x_predict_dream)
-#     x_predict_dream = pad_sequences(x_predict_dream, maxlen = 500) # 500으로 늘려주자
-#     score = float(loaded_model.predict(x_predict_dream))
-#     loaded_model.compile(loss="binary_crossentropy", optimizer="rmsprop", metrics=['accuracy'])
-#     # model evaluation
-#     score = loaded_model.evaluate(X,Y,verbose=0)
-#     print("%s : %.2f%%" % (loaded_model.metrics_names[1], score[1]*100))
-#     if(score > 0.5):
-#         print("[{}]는 길몽의 기운이 더 많습니다. 길몽력 : {:.2f}% 정확도: %.4f ".format(dream, score * 100) %acc)
-#     else:
-#         print("[{}]는 흉몽의 기운이 더 많습니다. 흉몽력 : {:.2f}% 정확도: %.4f ".format(dream, (1 - score) * 100) %acc)
+# # def predict_dream(dream):
+# #     dream.replace(korean,"")
+# #     #dream.replace('', np.nan, inplace=True)
+# #     x_predict_dream = []
+# #     temp_x = []
+# #     temp_x = okt.morphs(dream, stem=True) # 토큰화
+# #     temp_x = [word for word in temp_x if not word in stopwords] # 불용어 제거
+# #     x_predict_dream.append(temp_x)
+# #     x_predict_dream = tokenizer.texts_to_sequences(x_predict_dream)
+# #     x_predict_dream = pad_sequences(x_predict_dream, maxlen = 500) # 500으로 늘려주자
+# #     score = float(loaded_model.predict(x_predict_dream))
+# #     loaded_model.compile(loss="binary_crossentropy", optimizer="rmsprop", metrics=['accuracy'])
+# #     # model evaluation
+# #     score = loaded_model.evaluate(X,Y,verbose=0)
+# #     print("%s : %.2f%%" % (loaded_model.metrics_names[1], score[1]*100))
+# #     if(score > 0.5):
+# #         print("[{}]는 길몽의 기운이 더 많습니다. 길몽력 : {:.2f}% 정확도: %.4f ".format(dream, score * 100) %acc)
+# #     else:
+# #         print("[{}]는 흉몽의 기운이 더 많습니다. 흉몽력 : {:.2f}% 정확도: %.4f ".format(dream, (1 - score) * 100) %acc)
 
-# predict_dream("똥을 먹는 꿈이었어요.")
-# predict_dream("싸이코패스 할아버지가 나와서 다른 사람들을 죽였습니다.")
-# predict_dream("동성과 섹스하는 꿈을 꿨습니다")
+# # predict_dream("똥을 먹는 꿈이었어요.")
+# # predict_dream("싸이코패스 할아버지가 나와서 다른 사람들을 죽였습니다.")
+# # predict_dream("동성과 섹스하는 꿈을 꿨습니다")
 
-tempArr = ['모바일/Noun', '게임/Noun', '은/Josa', '재밌다/Adjective', '열심히/Adverb', '해서/Verb', '만/Modifier', '랩/Noun', '을/Josa', '찍어야지/Verb', '~/Punctuation', 'ㅎㅎㅎ/KoreanParticle']
-essential_tags = ['Noun', 'Adjective', 'Verb', 'Adverb']
+# tempArr = ['모바일/Noun', '게임/Noun', '은/Josa', '재밌다/Adjective', '열심히/Adverb', '해서/Verb', '만/Modifier', '랩/Noun', '을/Josa', '찍어야지/Verb', '~/Punctuation', 'ㅎㅎㅎ/KoreanParticle']
+# essential_tags = ['Noun', 'Adjective', 'Verb', 'Adverb']
 
-def include_es_tags(arr):
-    resultlist = []
-    for word in arr:
-        for essential in essential_tags:
-            if essential in word:
-                resultlist.append(word)
-    return resultlist
+# def include_es_tags(arr):
+#     resultlist = []
+#     for word in arr:
+#         for essential in essential_tags:
+#             if essential in word:
+#                 resultlist.append(word)
+#     return resultlist
 
-print(include_es_tags(tempArr))
+# print(include_es_tags(tempArr))
+
+from flask import Flask
+from flask_restful import Resource, Api
+from flask_restful import reqparse
+from flask import Response
+
+app = Flask(__name__)
+api = Api(app)
+class dreamAnalyzer(Resource):
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('dream', type=str)
+        #parser.add_argument('email', type=str)
+        args = parser.parse_args()
+ 
+        dream = args['dream']
+        print("dream : ", dream)
+        #email = args['email']
+        #return {'name': name , 'email' : email}
+        return {'dream':dream}
+ 
+api.add_resource(dreamAnalyzer, '/dreamAnalyzer')
+ 
+if __name__ == '__main__':
+    app.run(debug=True)
 
 
 stopwords =['꿈'

@@ -1,6 +1,6 @@
 
-//let SERVER = window.location.href;
-let SERVER = "http://makers.securekim.com/"
+let SERVER = window.location.href;
+//let SERVER = "http://makers.securekim.com/"
 
 //[HEADER]
 const H_SUCCESS_REQ         = 200;
@@ -57,7 +57,17 @@ function post_dream_number(token, dream, round, data, callback){
     });
 }
 
+function post_dream_score(token, dream, callback){
+    GENERAL_REQ("POST", SERVER+"dream/score", {token:token, dream:dream}, (result)=>{
+        callback(result);
+    });
+}
 
+function post_dream_analyze(token, dream, callback){
+    GENERAL_REQ("POST", SERVER+"dream/analyze", {token:token, dream:dream}, (result)=>{
+        callback(result);
+    });
+}
 
 /*
     get_dream_number 함수
