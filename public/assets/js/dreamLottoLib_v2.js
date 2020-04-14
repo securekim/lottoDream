@@ -56,30 +56,45 @@ const selectWord = (data) =>{
 //					동일한 단어 배열일 경우 확정적으로 항상 동일한 숫자를 주도록 함.
 // 					대신 단어 시드가 필요한 숫자보다 부족하면 완전 랜덤 생성함.
 const generateLotto = (datas) =>{
-	let generated = [];
+    let generated = [];
+    let flag = 0;
 	for(var i in datas){
 		generated = generated.concat(selectWord(datas[i]));
 	}
 	generated = Array.from(new Set(generated));
 	if(generated.length >= 7){ // 7개 이상인 경우 랜덤 픽
-		//console.log("숫자가 7개 이상입니다. 그 중에 랜덤으로 6개와 마지막 보너스 숫자를 선택합니다.");
-		generated = shuffleArray(generated).slice(0,7);
-	} else { //1개 이상, 7개 미만인 경우
+        flag = true;
+        console.log("숫자가 7개 이상입니다. 그 중에 랜덤으로 6개와 마지막 보너스 숫자를 선택합니다.");
+        generated = shuffleArray(generated).slice(0,7);
+    } else { //7개 미만인 경우
+        flag = false;
 		let genlen = 7 - generated.length;
 		if(datas.length >= genlen){
-			//console.log(genlen+"개의 숫자가 부족합니다. 데이터 시드가 충분하므로 항상 동일하게 확정적으로 나머지 숫자를 생성하고 보너스 숫자를 선택합니다.");
-			for(var i=0; i<genlen; i++){ // 필요한 만큼 숫자를 생성한다.
+			console.log(genlen+"개의 숫자가 부족합니다. 데이터 시드가 충분하므로 항상 동일하게 확정적으로 나머지 숫자를 생성하고 보너스 숫자를 선택합니다.");
+            for(var i=0; i<genlen; i++){ // 필요한 만큼 숫자를 생성한다.
 				let genNum = deldup(word2Lotto(datas[i]),generated); //단어기반으로 로또 생성하되 중복없이.)
 				generated.push(genNum);
-			}
+            }
 		} else {
-			//console.log(genlen+"개의 숫자가 부족합니다., 데이터 시드가 부족하므로 나머지 숫자를 생성하고 보너스 숫자를 선택합니다.");
-			let nums = [];
-			for(i=1; i<=45; i++) nums.push(i);
+			console.log(genlen+"개의 숫자가 부족합니다., 데이터 시드가 부족하므로 나머지 숫자를 생성하고 보너스 숫자를 선택합니다.");
+            let nums = [];
+            generated.sort(function(a, b) { // 오름차순
+                return a - b;
+            });
+            generated.push(999); // dummy
+            let numflag = 0;
+			for(i=1; i<=45; i++){
+                if(i == generated[numflag]){
+                    numflag++;
+                } else {
+                    nums.push(i);
+                }
+            } 
+            generated.pop();
 			generated = generated.concat(shuffleArray(nums).slice(0,genlen));
 		}
 	}
-	return getBonusWithArray(generated)
+	return {result:getBonusWithArray(generated), flag:flag}
 }
 
 const getBonusWithArray = (array) => {
@@ -88,7 +103,7 @@ const getBonusWithArray = (array) => {
 	});
 	let bonus = array[Math.floor(Math.random() * array.length)];
 	array.splice(array.indexOf(bonus),1);
-	array.push(bonus);
+	array.push(bonus+"번 [보너스]");
 	return array
 }
 

@@ -4,6 +4,7 @@ const   express         = require('express'),
         cors            = require("cors"),
         tools           = require('./tools'),
         database        = require('./database'),
+        lotto           = require('./clientLib/dreamLottoLib_v2'),
         path            = require('path'),
         fs              = require('fs'),
         crypto          = require('crypto');
@@ -26,6 +27,10 @@ const   express         = require('express'),
     const {
         isNone,
     } = tools;
+
+    const {
+        generateLotto,
+    } = lotto;
 
     const {
         generalQ,
@@ -101,6 +106,7 @@ class RESULT {
 app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname + '/public'));
+app.use(bodyParser.urlencoded({ extended : true }));
 
 app.get('/', function(req, res) {
     res.sendFile(path.join(__dirname + '/public/dimension/index.html'));
@@ -368,6 +374,12 @@ app.get('/dream/number/:token/:dream', (req,res)=>{
                     }
             });
             
+    })
+
+    app.post("/contact",(req,res)=>{
+        let ip = req.headers['x-forwarded-for'] ||  req.connection.remoteAddress;
+        console.log("[NEW Message]\n  IP : "+ip+", Name : "+req.body.name+ ", Email : "+req.body.email, "\n  Message : "+req.body.message);
+        res.status(H_SUCCESS_REQ).send("좋은 의견 감사합니다.");
     })
    
 process.on('uncaughtException', function (err) {
