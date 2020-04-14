@@ -273,6 +273,13 @@ app.get('/dream/number/:token/:dream', (req,res)=>{
             id      = req.session.uid,
             dream   = req.params.dream;
             
+        
+            if(token == "WEB"){
+                token = req.headers['x-forwarded-for'] ||
+                req.connection.remoteAddress ||
+                req.socket.remoteAddress ||
+                req.connection.socket.remoteAddress;
+            }
         if(isNone(token) || isNone(dream)){
                 res.status(H_FAIL_BAD_REQUEST).send(B_FAIL_WEIRD_DATA);
             } else {
@@ -303,8 +310,14 @@ app.get('/dream/number/:token/:dream', (req,res)=>{
             wordArr   = req.body.wordArr; // data.number, data.word
             let numbs = [];
             let words = [];
-            
-            if(isNone(token) || isNone(dream) || isNone(round) || isNone(numArr) || isNone(wordArr)){
+            if(token == "WEB"){
+                token = req.headers['x-forwarded-for'] ||
+                req.connection.remoteAddress ||
+                req.socket.remoteAddress ||
+                req.connection.socket.remoteAddress;
+            }
+
+            if(isNone(token) || isNone(dream)){
                 res.status(H_FAIL_BAD_REQUEST).send(B_FAIL_WEIRD_DATA);
             } else {
                 if(isNone(id)) id = "NULL";
@@ -331,9 +344,7 @@ app.get('/dream/number/:token/:dream', (req,res)=>{
     })
 
     app.post("/dream/score",(req,res)=>{
-        let token   = req.body.token,
-            id      = req.session.uid,
-            dream   = req.body.dream
+            let dream   = req.body.dream
             request({
                 url: 'http://127.0.0.1:5000/dreamScore',
                 method: "POST",
@@ -354,9 +365,9 @@ app.get('/dream/number/:token/:dream', (req,res)=>{
     })
 
     app.post("/dream/analyze",(req,res)=>{
-        let token   = req.body.token,
-            id      = req.session.uid,
+        let id      = req.session.uid,
             dream   = req.body.dream
+
             request({
                 url: 'http://127.0.0.1:5000/dreamAnalyze',
                 method: "POST",

@@ -49,9 +49,10 @@ const H_FAIL_SERVER_HACKED  = 501;
 */
 
 function post_dream_number(token, dream, round, data, callback){
+    console.log("post_dream_number!")
     console.log(data);
-    console.log(data.number);
-    console.log(data.word);
+    console.log(data.numArr);
+    console.log(data.wordArr);
     round = Number(round);
     
     GENERAL_REQ("POST", SERVER+"/dream/number", {token:token, dream:dream, round:round, numArr:data.numArr, wordArr:data.wordArr}, (result)=>{

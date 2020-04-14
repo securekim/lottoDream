@@ -1,7 +1,4 @@
 let myInfo = "WEB"
-$.get('https://www.cloudflare.com/cdn-cgi/trace', function(data) {
-    myInfo = data.ip;
-})
 
 refreshTableWithStorage_LOCKER();
 refreshTableWithStorage_LOTTO();
@@ -116,10 +113,23 @@ const BUTTON_GETLOTTO = (title, dream) =>{
                         let lottos = generateLotto(nouns);
                         console.log(lottos);
                         if(lottos.flag){ // 7개 이상
-                            alertify.alert("7개 이상의 번호가 검출되어 <br>시각을 고려해 뽑았습니다. <br>"+ lottos.result.join("번, ")); 
+                            alertify.alert("7개 이상의 번호가 검출되어 <br>현재 시각을 고려해 뽑았습니다. <br>"+ lottos.result.join("번, ")); 
                         } else {
                             alertify.alert("7개 미만의 번호가 검출되어 <br>나머지 숫자를 랜덤하게 골랐습니다. <br>"+ lottos.result.join("번, "));
                         }
+                        post_dream_number(
+                            myInfo, 
+                            title+" : "+dream, 
+                             0, 
+                             {numArr:lottos.result, wordArr:nouns}, 
+                             (result) => 
+                             { 
+                                console.table(result); 
+                                if(result.status == H_SUCCESS_REQ || result.status == H_SUCCESS_MODIFY) console.log("성공 ! ");
+                                else console.log("실패 ! ");
+                             }) 
+
+
                     } else {
                         alertify.alert("AI 서버가 준비중이거나 서버에 문제가 있습니다.")
                     }
@@ -136,3 +146,20 @@ const BUTTON_GETLOTTO = (title, dream) =>{
     });
 
 }
+
+var textCountLimit = 2000;
+ 
+$(document).ready(function() {
+    $('textarea[name=TEXTAREA_DREAM]').keyup(function() {
+        // 텍스트영역의 길이를 체크
+        var textLength = $(this).val().length;
+ 
+        // 입력된 텍스트 길이를 #textCount 에 업데이트 해줌
+        $('#textCount').text(textLength);
+         
+        // 제한된 길이보다 입력된 길이가 큰 경우 제한 길이만큼만 자르고 텍스트영역에 넣음
+        if (textLength > textCountLimit) {
+            $(this).val($(this).val().substr(0, textCountLimit));
+        }
+    });
+});
