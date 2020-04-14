@@ -60,8 +60,8 @@ function post_dream_number(token, dream, round, data, callback){
     });
 }
 
-function post_dream_score(token, dream, callback){
-    GENERAL_REQ("POST", SERVER+"/dream/score", {token:token, dream:dream}, (result)=>{
+function post_dream_score(token, title, dream, callback){
+    GENERAL_REQ("POST", SERVER+"/dream/score", {token:token, title:title, dream:dream}, (result)=>{
         callback(result);
     });
 }

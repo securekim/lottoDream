@@ -11,7 +11,8 @@ let QUERY = {
     HISTORY_POST      : "INSERT INTO history(ID, History, target, point) VALUES(_GENQ_);",
     HISTORY_GET       : "SELECT SUM(point) as point FROM history WHERE id = ?",
     DREAM_NUMBER_POST : "INSERT INTO dreams(token, id, dream, round, numbs, words) VALUES(_GENQ_);",
-    DREAM_NUMBER_GET  : "SELECT * FROM dreams WHERE token = ? and id = ? and dream = ?"
+    DREAM_NUMBER_GET  : "SELECT * FROM dreams WHERE token = ? and id = ? and dream = ?",
+    DREAM_AI_POST     : "INSERT INTO dreams_ai(token, id, title, dream, score) VALUES(_GENQ_);",
     //HISTORY_WS      : "INSERT INTO history(ID, History, target, point) VALUES(_GENQ_);"
 }
 

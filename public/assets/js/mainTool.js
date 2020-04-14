@@ -14,9 +14,9 @@ const BUTTON_INTEPRET = () =>{
             if (morph.length == 0 ) 
                 return alertify.alert("꿈의 내용이 이상합니다. 다시 입력하세요.")
             console.log(morph);
-            alertify.prompt("꿈의 제목을 입력하세요.", "재물을 얻는 꿈",
+            alertify.prompt("꿈의 제목을 입력하세요.", "꿈 제목",
             function(evt, title){
-                post_dream_score(myInfo, dream, (result)=>{ 
+                post_dream_score(myInfo, title, dream, (result)=>{ 
                     if(result.status == 200) {
                         let score = JSON.parse(result.result).score;
                         let message = "";

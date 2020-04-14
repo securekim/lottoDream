@@ -344,7 +344,22 @@ app.get('/dream/number/:token/:dream', (req,res)=>{
     })
 
     app.post("/dream/score",(req,res)=>{
-            let dream   = req.body.dream
+            let token   = req.body.token;
+            let id      = req.session.uid;
+            let title   = req.body.title;
+            let dream   = req.body.dream;
+
+            if(token == "WEB"){
+                token = req.headers['x-forwarded-for'] ||
+                req.connection.remoteAddress ||
+                req.socket.remoteAddress ||
+                req.connection.socket.remoteAddress;
+            }
+
+            if(isNone(token) || isNone(dream) || isNone(title))
+                return res.status(H_FAIL_BAD_REQUEST).send(B_FAIL_WEIRD_DATA);
+        
+            if(isNone(id)) id = "NULL";
             request({
                 url: 'http://127.0.0.1:5000/dreamScore',
                 method: "POST",
@@ -358,7 +373,22 @@ app.get('/dream/number/:token/:dream', (req,res)=>{
                         res.status(H_FAIL_SERVER_ERR).send(B_FAIL_SERVER_READY);
                     } else {
                         if(t_res.statusCode != 200) res.status(t_res.statusCode).send(B_FAIL_SERVER_READY)
-                        else res.status(H_SUCCESS_REQ).send(body);
+                        else {
+                            res.status(H_SUCCESS_REQ).send(body);
+                            let params = [token, id, title, dream, body.score.toString()];
+                            generalQ(QUERY.DREAM_AI_POST,params,(result)=>{
+                                if(result.fail){
+                                    console.log(result);
+                                } else {
+                                    if(result.rows.length == 0){
+                                        console.log(result);
+                                    } else {
+                                        //성공적.
+                                        //res.status(H_SUCCESS_REQ).send(result.rows);
+                                    }
+                                }
+                            });
+                        }
                     }
             });
             
