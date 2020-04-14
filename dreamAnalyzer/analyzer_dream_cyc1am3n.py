@@ -1,19 +1,25 @@
 
+#https://cyc1am3n.github.io/2018/11/10/classifying_korean_movie_review.html
 # 불러오기
 import pandas as pd
 from os.path import dirname, join
-# def read_data(filename):
-#     with open(filename, 'r', encoding='UTF8') as f:
-#         data = [line.split('\t') for line in f.read().splitlines()]
-#         # txt 파일의 헤더(id document label)는 제외하기
-#         data = data[1:]
-#     return data
+def read_data(filename):
+    with open(filename, 'r', encoding='UTF8') as f:
+        data = [line.split('\t') for line in f.read().splitlines()]
+        # txt 파일의 헤더(id document label)는 제외하기
+        data = data[1:]
+    return data
 
-#train_data = read_data('dreamAnalyzer/datas_added_19300.txt')
-#test_data = read_data('dreamAnalyzer/datas_manual_1300.txt')
+train_data = read_data(join(dirname(__file__),'./datas_added_19300.txt'))
+test_data = read_data(join(dirname(__file__),'./datas_manual_1300.txt'))
 
-train_data = pd.read_table(join(dirname(__file__), './datas_added_19300.txt'))
-test_data = pd.read_table(join(dirname(__file__), './datas_manual_1300.txt'))
+print(len(train_data))
+print(train_data[0])
+print(len(test_data))
+print(test_data[0])
+
+# train_data = pd.read_table(join(dirname(__file__), './datas_added_19300.txt'))
+# test_data = pd.read_table(join(dirname(__file__), './datas_manual_1300.txt'))
 
 # 태깅
 from konlpy.tag import Okt
@@ -26,20 +32,22 @@ def tokenize(doc):
     # norm은 정규화, stem은 근어로 표시하기를 나타냄
     return ['/'.join(t) for t in okt.pos(doc, norm=True, stem=True)]
 
-if os.path.isfile('train_docs.json'):
-    with open('train_docs.json') as f:
+if os.path.isfile(join(dirname(__file__),'train_docs.json')):
+    with open(join(dirname(__file__),'train_docs.json')) as f:
         train_docs = json.load(f)
-    with open('test_docs.json') as f:
+    with open(join(dirname(__file__),'test_docs.json')) as f:
         test_docs = json.load(f)
 else:
-    train_docs = [(tokenize(row[1]), row[2]) for row in train_data]
-    test_docs = [(tokenize(row[1]), row[2]) for row in test_data]
+    train_docs = [(tokenize(row[1]), row[0]) for row in train_data]
+    test_docs = [(tokenize(row[1]), row[0]) for row in test_data]
     # JSON 파일로 저장
-    with open('train_docs.json', 'w', encoding="utf-8") as make_file:
+    with open(join(dirname(__file__),'train_docs.json'), 'w', encoding="utf-8") as make_file:
         json.dump(train_docs, make_file, ensure_ascii=False, indent="\t")
-    with open('test_docs.json', 'w', encoding="utf-8") as make_file:
+    with open(join(dirname(__file__),'test_docs.json'), 'w', encoding="utf-8") as make_file:
         json.dump(test_docs, make_file, ensure_ascii=False, indent="\t")
 
+    # train_docs = [(tokenize(row[1]), row[2]) for row in train_data]
+    # test_docs = [(tokenize(row[1]), row[2]) for row in test_data]
 # 예쁘게(?) 출력하기 위해서 pprint 라이브러리 사용
 pprint(train_docs[0])
 
@@ -81,16 +89,31 @@ test_x = [term_frequency(d) for d, _ in test_docs]
 train_y = [c for _, c in train_docs]
 test_y = [c for _, c in test_docs]
 
-#float 로 형 변환
+# import numpy as np
+# >>> a = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9])
+# >>> b = np.array([3,4,7])
+# >>> c = np.setdiff1d(a,b)
+# >>> c
+# array([1, 2, 5, 6, 8, 9])
+
 import numpy as np
 
-x_train = np.asarray(train_x).astype('float32')
-x_test = np.asarray(test_x).astype('float32')
+#불용어 제거
+stopwords = ["꿈"]
+
+train_tmp = np.setdiff1d(np.array(train_x), np.array(stopwords))
+test_tmp = np.setdiff1d(np.array(test_x), np.array(stopwords))
+
+#float 로 형 변환
+x_train = np.asarray(train_tmp).astype('float32')
+x_test = np.asarray(test_tmp).astype('float32')
 
 y_train = np.asarray(train_y).astype('float32')
 y_test = np.asarray(test_y).astype('float32')
 
 # 기계학습
+
+print("START AI")
 
 from tensorflow.keras import models
 from tensorflow.keras import layers
@@ -110,6 +133,9 @@ model.compile(optimizer=optimizers.RMSprop(lr=0.001),
 model.fit(x_train, y_train, epochs=10, batch_size=512)
 results = model.evaluate(x_test, y_test)
 
+
+print("END AI")
+
 def predict_pos_neg(review):
     token = tokenize(review)
     tf = term_frequency(token)
@@ -120,6 +146,10 @@ def predict_pos_neg(review):
     else:
         print("[{}]는 {:.2f}% 확률로 부정 리뷰이지 않을까 추측해봅니다.^^;\n".format(review, (1 - score) * 100))
 
+print("PREDICT")
+
 predict_pos_neg("똥을 먹는 꿈이었어요.")
 predict_pos_neg("싸이코패스 할아버지가 나와서 다른 사람들을 죽였습니다.")
-predict_pos_neg("동성과 섹스하는 꿈을 꿨습니다")
+predict_pos_neg("동성과 성관계하는 꿈을 꿨습니다.")
+predict_pos_neg("동성과 섹스하는 꿈을 꿨습니다.")
+predict_pos_neg("벚꽃이 활짝 핀 공원에서 연인과 함께 산책하는 꿈을 꾸었습니다. 그런데 도중에 강도를 만나 칼에 찔렸습니다.")
