@@ -103,7 +103,7 @@ app.use(express.json());
 app.use(express.static(__dirname + '/public'));
 
 app.get('/', function(req, res) {
-    res.sendFile(path.join(__dirname + '/public/clientCode.html'));
+    res.sendFile(path.join(__dirname + '/public/dimension/index.html'));
 });
 
 app.route('/users')
@@ -363,7 +363,7 @@ app.get('/dream/number/:token/:dream', (req,res)=>{
                     if(err) {
                         res.status(H_FAIL_SERVER_ERR).send(B_FAIL_SERVER_READY);
                     } else {
-                        if(t_res.status != 200) res.status(t_res.status).send(B_FAIL_SERVER_READY)
+                        if(t_res.statusCode != 200) res.status(t_res.statusCode).send(B_FAIL_SERVER_READY)
                         else res.status(H_SUCCESS_REQ).send(body);
                     }
             });

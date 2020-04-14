@@ -1,6 +1,8 @@
 
-let SERVER = window.location.href;
+let SERVER = window.location.href.split("/");
 //let SERVER = "http://makers.securekim.com/"
+SERVER = SERVER[0] + "//" + SERVER[2]
+console.log(SERVER);
 
 //[HEADER]
 const H_SUCCESS_REQ         = 200;
@@ -52,19 +54,19 @@ function post_dream_number(token, dream, round, data, callback){
     console.log(data.word);
     round = Number(round);
     
-    GENERAL_REQ("POST", SERVER+"dream/number", {token:token, dream:dream, round:round, numArr:data.numArr, wordArr:data.wordArr}, (result)=>{
+    GENERAL_REQ("POST", SERVER+"/dream/number", {token:token, dream:dream, round:round, numArr:data.numArr, wordArr:data.wordArr}, (result)=>{
         callback(result);
     });
 }
 
 function post_dream_score(token, dream, callback){
-    GENERAL_REQ("POST", SERVER+"dream/score", {token:token, dream:dream}, (result)=>{
+    GENERAL_REQ("POST", SERVER+"/dream/score", {token:token, dream:dream}, (result)=>{
         callback(result);
     });
 }
 
 function post_dream_analyze(token, dream, callback){
-    GENERAL_REQ("POST", SERVER+"dream/analyze", {token:token, dream:dream}, (result)=>{
+    GENERAL_REQ("POST", SERVER+"/dream/analyze", {token:token, dream:dream}, (result)=>{
         callback(result);
     });
 }
@@ -92,7 +94,7 @@ function post_dream_analyze(token, dream, callback){
 */
 
 function get_dream_number(token, dream, callback){
-    GENERAL_REQ("GET", SERVER+"dream/number/"+token+"/"+dream, null, (result)=>{
+    GENERAL_REQ("GET", SERVER+"/dream/number/"+token+"/"+dream, null, (result)=>{
         callback(result);
     });
 }
@@ -118,7 +120,7 @@ function get_dream_number(token, dream, callback){
         })
 */
 function register(ID, PW, Email, NM, type, platform, callback){
-    GENERAL_REQ("POST", SERVER+"users", {ID:ID, PW:SHA256(PW), Email:Email, NM:NM, type:type, platform:platform}, (result)=>{
+    GENERAL_REQ("POST", SERVER+"/users", {ID:ID, PW:SHA256(PW), Email:Email, NM:NM, type:type, platform:platform}, (result)=>{
         callback(result);
     });
 }
@@ -136,7 +138,7 @@ function register(ID, PW, Email, NM, type, platform, callback){
         })
 */
 function login(ID, PW, callback){
-    GENERAL_REQ("POST", SERVER+"login", {ID:ID, PW:SHA256(PW)}, (result)=>{
+    GENERAL_REQ("POST", SERVER+"/login", {ID:ID, PW:SHA256(PW)}, (result)=>{
         callback(result);
     })
     socket.emit("login", {ID:ID, PW:SHA256(PW)});
@@ -152,7 +154,7 @@ function login(ID, PW, callback){
         })
 */
 function isLoggedIn(callback){
-    GENERAL_REQ("GET", SERVER+"login", null, (result)=>{
+    GENERAL_REQ("GET", SERVER+"/login", null, (result)=>{
         callback(result);
     });
     socket.emit("isLoggedIn");
@@ -168,7 +170,7 @@ function isLoggedIn(callback){
         })
 */
 function logout(callback){
-    GENERAL_REQ("DELETE", SERVER+"login", null, (result)=>{
+    GENERAL_REQ("DELETE", SERVER+"/login", null, (result)=>{
         callback(result);
     });
     socket.emit("logout");
