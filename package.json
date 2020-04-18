@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
+    "@sweetalert2/theme-wordpress-admin": "^3.1.4",
     "alertifyjs": "^1.13.1",
     "body-parser": "^1.19.0",
     "cheerio": "^1.0.0-rc.3",
@@ -21,7 +22,8 @@
     "node-java-maven": "^0.1.1",
     "redis": "^3.0.2",
     "request": "^2.88.2",
-    "socket.io": "^2.3.0"
+    "socket.io": "^2.3.0",
+    "sweetalert2": "^9.10.12"
   },
   "devDependencies": {},
   "scripts": {
