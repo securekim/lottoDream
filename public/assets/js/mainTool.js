@@ -16,23 +16,66 @@ const BUTTON_INTEPRET = () =>{
             console.log(morph);
             alertify.prompt("꿈의 제목을 입력하세요.", "꿈 제목",
             function(evt, title){
-                post_dream_score(myInfo, title, dream, (result)=>{ 
-                    if(result.status == 200) {
-                        let score = JSON.parse(result.result).score;
-                        let message = "";
-                        console.log(score);
-                        STORAGE_addDream(title, dream,  (score*100).toFixed(2));
-                        if(score >0.5) {
-                            score = (score*100).toFixed(2);
-                            message = "길몽의 기운이 더 많습니다. 길몽력 : " + score + "%"
-                        } else {
-                            score = ((1-score)*100).toFixed(2);
-                            message = "흉몽의 기운이 더 많습니다. 흉몽력 : " + score + "%"
+                //TIMER
+                let timerInterval
+                Swal.fire({
+                  title: 'A.I. Dream Reader',
+                  html: '꿈 분석 중.',
+                  timer: 3000,
+                  timerProgressBar: true,
+                  onBeforeOpen: () => {
+                    Swal.showLoading()
+                    timerInterval = setInterval(() => {
+                      const content = Swal.getContent()
+                      if (content) {
+                        const b = content.querySelector('b')
+                        if (b) {
+                          b.textContent = Swal.getTimerLeft()
                         }
-                        alertify.alert(message);
-                    } else {
-                        alertify.alert(result.status);
-                    }
+                      }
+                    }, 100)
+                  },
+                  onClose: () => {
+                    clearInterval(timerInterval)
+                  }
+                }).then((result) => {
+                  /* Read more about handling dismissals below */
+                  if (result.dismiss === Swal.DismissReason.timer) {
+                    post_dream_score(myInfo, title, dream, (result)=>{ 
+                        if(result.status == 200) {
+                            let score = JSON.parse(result.result).score;
+                            let message = "";
+                            console.log(score);
+                            STORAGE_addDream(title, dream,  (score*100).toFixed(2));
+                            if(score >0.5) {
+                                score = (score*100).toFixed(2);
+                                message = "길몽의 기운이 더 많습니다. 길몽력 : " + score + "%"
+                            } else {
+                                score = ((1-score)*100).toFixed(2);
+                                message = "흉몽의 기운이 더 많습니다. 흉몽력 : " + score + "%"
+                            }
+                            Swal.fire({
+                                title: '"'+title+'"',
+                                text: message,
+                                imageUrl: 'images/AI.jpg',
+                                imageWidth: '30em',
+                                //imageHeight: 200,
+                                imageAlt: 'Custom image',
+                                showCancelButton: true,
+                                confirmButtonColor: '#3085d6',
+                                cancelButtonColor: '#d33',
+                                confirmButtonText: '로또 번호 요청',
+                                cancelButtonText: '취소'
+                              }).then((result) => {
+                                if (result.value) {
+                                    BUTTON_GETLOTTO(title,dream);
+                                }
+                              })
+                        } else {
+                            alertify.alert(result.status);
+                        }
+                    })
+                  }
                 })
             },
             function(){
@@ -73,8 +116,19 @@ const BUTTON_DELDREAMS = () =>{
 }
 
 const BUTTON_GETLOTTO = (title, dream) =>{
-    alertify.confirm("["+title+"] 꿈으로 <br>로또 번호 추출을 하시겠습니까?",
-    function(){
+    let alreadyGetNumber = STORAGE_getLotto(dream);
+                if(alreadyGetNumber){
+                    Swal.fire({
+                        title: '"'+title+'"',
+                        text: alreadyGetNumber,
+                        imageUrl: 'images/ball.jpeg',
+                        imageWidth: '30em',
+                        //imageHeight: 210,
+                        imageAlt: 'Custom image',
+                        confirmButtonText: '확인',
+                      })
+                      return;
+                }
         let timerInterval
         Swal.fire({
           title: 'A.I. Dream Reader',
@@ -99,7 +153,6 @@ const BUTTON_GETLOTTO = (title, dream) =>{
         }).then((result) => {
           /* Read more about handling dismissals below */
           if (result.dismiss === Swal.DismissReason.timer) {
-            console.log('I was closed by the timer')
                 post_dream_analyze(myInfo, dream, (result)=>{
                     if(result.status == 200) {
                         let morph = JSON.parse(result.result).morph;
@@ -111,12 +164,24 @@ const BUTTON_GETLOTTO = (title, dream) =>{
                             if(morph[i].split("/")[1] == "Noun") nouns.push(morph[i].split("/")[0]);
                         }
                         let lottos = generateLotto(nouns);
+                        let message = ""
                         console.log(lottos);
-                        if(lottos.flag){ // 7개 이상
-                            alertify.alert("7개 이상의 번호가 검출되어 <br>현재 시각을 고려해 뽑았습니다. <br>"+ lottos.result.join("번, ")); 
-                        } else {
-                            alertify.alert("7개 미만의 번호가 검출되어 <br>나머지 숫자를 랜덤하게 골랐습니다. <br>"+ lottos.result.join("번, "));
-                        }
+                        message = lottos.result.join("번, ");
+                        STORAGE_saveLotto(dream, message);
+                        // if(lottos.flag){ // 7개 이상
+                        //     alertify.alert("7개 이상의 번호가 검출되어 <br>현재 시각을 고려해 뽑았습니다. <br>"+ lottos.result.join("번, ")); 
+                        // } else {
+                        //     alertify.alert("7개 미만의 번호가 검출되어 <br>나머지 숫자를 랜덤하게 골랐습니다. <br>"+ lottos.result.join("번, "));
+                        // }
+                        Swal.fire({
+                            title: '"'+title+'"',
+                            text: message,
+                            imageUrl: 'images/ball.jpeg',
+                            imageWidth: '30em',
+                            //imageHeight: 210,
+                            imageAlt: 'Custom image',
+                            confirmButtonText: '확인',
+                          })
                         post_dream_number(
                             myInfo, 
                             title+" : "+dream, 
@@ -128,23 +193,12 @@ const BUTTON_GETLOTTO = (title, dream) =>{
                                 if(result.status == H_SUCCESS_REQ || result.status == H_SUCCESS_MODIFY) console.log("성공 ! ");
                                 else console.log("실패 ! ");
                              }) 
-
-
                     } else {
                         alertify.alert("AI 서버가 준비중이거나 서버에 문제가 있습니다.")
                     }
                 })
           }
         })
-
-
-
-
-    },
-    function(){
-      alertify.error('Cancel');
-    });
-
 }
 
 var textCountLimit = 2000;

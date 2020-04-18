@@ -1,5 +1,5 @@
 
-const MAX_POOL = 5;
+const MAX_POOL = 7;
 
 //1부터 시작함. 0인 경우 없는것임.
 let lastNumber = Number(localStorage.getItem('lastNumber')); 
@@ -30,6 +30,38 @@ const STORAGE_addDream = (title, dream, score) => {
     refreshTableWithStorage_LOTTO();
 }
 
+const STORAGE_getDreamKeys = (dream) =>{
+    let keys = [];
+    for(var i=1; i<=MAX_POOL; i++){
+        let temp = localStorage.getItem(i);
+        if(temp && JSON.parse(localStorage.getItem(i)).dream == dream) {
+            keys.push(i);
+        }
+    }
+    return keys;
+}
+
+const STORAGE_saveLotto = (dream, numbers) =>{
+    let keys = STORAGE_getDreamKeys(dream);
+    for(var i in keys){
+        let idx = keys[i]
+        let tempObj = JSON.parse(localStorage.getItem(idx));
+        tempObj.numbers = numbers;
+        localStorage.setItem(idx,JSON.stringify(tempObj));
+    }
+}
+
+const STORAGE_getLotto = (dream) =>{
+    let keys = STORAGE_getDreamKeys(dream);
+    for(var i in keys){
+        let idx = keys[i];
+        let tmpNum = JSON.parse(localStorage.getItem(idx));
+        if(typeof JSON.parse(localStorage.getItem(idx)).numbers != "undefined")
+            return tmpNum.numbers;
+    }
+    return null;
+}
+
 const STORAGE_getDreams = () =>{
     let dreams = [];
     if(lastNumber != 0) 
@@ -38,8 +70,8 @@ const STORAGE_getDreams = () =>{
             if(temp) {
                 dreams.push(JSON.parse(temp))
             }
-            
         }
+    console.table(dreams)
     return dreams;
 }
 
@@ -52,6 +84,7 @@ const STORAGE_delDreams = () =>{
     refreshTableWithStorage_LOTTO();
 }
 
+
 const STORAGE_saveTemp = (dream) =>{
     localStorage.setItem("tempDream",dream);
 }
@@ -62,6 +95,8 @@ const STORAGE_saveContact = (message, name, email) =>{
     localStorage.setItem("tempName",name);
     localStorage.setItem("tempEmail",email);
 }
+
+
 
 const STORAGE_loadContact = ()=>{
     let tempMessage = localStorage.getItem('tempMessage');
