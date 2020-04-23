@@ -360,38 +360,37 @@ app.get('/dream/number/:token/:dream', (req,res)=>{
                 return res.status(H_FAIL_BAD_REQUEST).send(B_FAIL_WEIRD_DATA);
         
             if(isNone(id)) id = "NULL";
-            request({
-                url: 'http://127.0.0.1:5000/dreamScore',
-                method: "POST",
-                headers: {
-                    "content-type": "application/json",
-                    },
-                json: {"dream":dream}
-            //  body: JSON.stringify(requestData)
-                }, function (err, t_res, body) {
-                    if(err) {
-                        res.status(H_FAIL_SERVER_ERR).send(B_FAIL_SERVER_READY);
-                    } else {
-                        if(t_res.statusCode != 200) res.status(t_res.statusCode).send(B_FAIL_SERVER_READY)
-                        else {
-                            res.status(H_SUCCESS_REQ).send(body);
-                            let params = [token, id, title, dream, body.score.toString()];
-                            generalQ(QUERY.DREAM_AI_POST,params,(result)=>{
-                                if(result.fail){
-                                    console.log(result);
-                                } else {
-                                    if(result.rows.length == 0){
+                request({
+                    url: 'http://127.0.0.1:5000/dreamScore',
+                    method: "POST",
+                    headers: {
+                        "content-type": "application/json",
+                        },
+                    json: {"dream":dream}
+                //  body: JSON.stringify(requestData)
+                    }, function (err, t_res, body) {
+                        if(err) {
+                            res.status(H_FAIL_SERVER_ERR).send(B_FAIL_SERVER_READY);
+                        } else {
+                            if(t_res.statusCode != 200) res.status(t_res.statusCode).send(B_FAIL_SERVER_READY)
+                            else {
+                                res.status(H_SUCCESS_REQ).send(body);
+                                let params = [token, id, title, dream, body.score.toString()];
+                                generalQ(QUERY.DREAM_AI_POST,params,(result)=>{
+                                    if(result.fail){
                                         console.log(result);
                                     } else {
-                                        //성공적.
-                                        //res.status(H_SUCCESS_REQ).send(result.rows);
+                                        if(result.rows.length == 0){
+                                            console.log(result);
+                                        } else {
+                                            //성공적.
+                                            //res.status(H_SUCCESS_REQ).send(result.rows);
+                                        }
                                     }
-                                }
-                            });
+                                });
+                            }
                         }
-                    }
-            });
-            
+                });
     })
 
     app.post("/dream/analyze",(req,res)=>{

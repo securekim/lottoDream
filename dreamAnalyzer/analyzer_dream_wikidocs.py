@@ -16,6 +16,10 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.models import load_model
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
 from os.path import dirname, join
+#FOR SERVER
+from flask import Flask
+from flask_restful import Resource, Api
+from flask_restful import reqparse
 os.environ['PYTHONHASHSEED'] = '0'
 
 #os.environ['CUDA_VISIBLE_DEVICES'] = '0'
@@ -295,9 +299,6 @@ def predict_dream(dream):
 # predict_dream("집에 불이 났는데 힘들게 불을 껐어요.") #흉
 
 
-from flask import Flask
-from flask_restful import Resource, Api
-from flask_restful import reqparse
  
 app = Flask(__name__)
 api = Api(app)
