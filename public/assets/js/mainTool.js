@@ -16,8 +16,9 @@ refreshTableWithStorage_LOTTO();
 
 const isEssential = (word) =>{
     //word 의 형태 : "나/NN"
+    let speach = "";
     try{
-    let speach = word.split("/")[1];
+    speach = word.split("/")[1];
     } catch(e) {
         console.log(e);
         return false;
@@ -203,7 +204,7 @@ const BUTTON_GETLOTTO = (title, dream) =>{
                       myInfo, 
                       title+" : "+dream, 
                        0, 
-                       {numArr:lottos.result, wordArr:nouns}, 
+                       {numArr:lottos.result, wordArr:words}, 
                        (result) => 
                        { 
                           console.table(result); 
