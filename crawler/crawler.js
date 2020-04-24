@@ -63,7 +63,6 @@ const getDream = (page, callback) => {
         let korean_body = iconv.convert(body).toString();
         const $ = cheerio.load(korean_body);
         //let tableArr    = $("body > table:nth-child(5) > tbody > tr > td:nth-child(3) > table:nth-child(2) > tbody > tr:nth-child(2) > td:nth-child(2) > table > tbody > tr:nth-child(2) > td")
-                                                                                                                                                                                                //2부터 51까지. 
         //TODO : 마지막 페이지 신경 쓸 것
         let resultArr = [];
         for(let i =2; i<52; i++){

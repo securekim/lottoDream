@@ -80,6 +80,7 @@ const STORAGE_delDreams = () =>{
         localStorage.removeItem(i);
     }
     localStorage.setItem('lastNumber',0);
+    lastNumber = 0;
     refreshTableWithStorage_LOCKER();
     refreshTableWithStorage_LOTTO();
 }

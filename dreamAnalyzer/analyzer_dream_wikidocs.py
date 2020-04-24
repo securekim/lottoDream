@@ -208,7 +208,7 @@ mc = ModelCheckpoint('best_model.h5', monitor='val_acc', mode='max', verbose=1, 
 model.compile(optimizer='rmsprop', loss='binary_crossentropy', metrics=['acc'])
 history = model.fit(X_train, y_train, epochs=15, callbacks=[es, mc], batch_size=60, validation_split=0.2)
 
-model.save('best_model2.h5')  # creates a HDF5 file 'my_model.h5'
+#model.save('best_model2.h5')  # creates a HDF5 file 'my_model.h5'
 
 model_json = model.to_json()
 with open("model.json", "w") as json_file : 
@@ -216,12 +216,12 @@ with open("model.json", "w") as json_file :
 
 model.save_weights("model.h5")
 
-loaded_model = load_model('best_model2.h5')
+loaded_model = load_model('best_model.h5')
 loaded_model.summary()
-#print("\n 테스트 정확도: %.4f" % (loaded_model.evaluate(X_test, y_test)[1]))
+# print("\n 테스트 정확도: %.4f" % (loaded_model.evaluate(X_test, y_test)[1]))
 
 
-# 훈련과 검증 손실 그리기
+# # 훈련과 검증 손실 그리기
 # import matplotlib.pyplot as plt
 
 # history_dict = history.history
@@ -238,7 +238,7 @@ loaded_model.summary()
 # plt.legend()
 # plt.show()
 
-# 훈련과 손실 정확도 그리기
+# # 훈련과 손실 정확도 그리기
 # plt.clf() # 그래프를 초기화합니다.
 # acc = history_dict['acc']
 # val_acc = history_dict['val_acc']

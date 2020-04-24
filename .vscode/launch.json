@@ -17,7 +17,8 @@
             "type": "python",
             "request": "launch",
             "program": "${file}",
-            "console": "integratedTerminal"
+            "console": "integratedTerminal",
+            "pythonPath" : "C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.8_3.8.752.0_x64__qbz5n2kfra8p0\\python3.8.exe"
         }
     ]
 }

@@ -1,7 +1,18 @@
+#-*- coding:utf-8 -*-
 from konlpy.tag import Kkma
+from konlpy.tag import Okt
+from konlpy.tag import Komoran
+from konlpy.tag import Hannanum
+from konlpy.tag import Twitter
 from konlpy.utils import pprint
 kkma = Kkma()
-pprint(kkma.tagset)
+okt = Okt()
+komoran = Komoran()
+hannanum = Hannanum()
+twitter = Twitter()
+
+
+#pprint(kkma.tagset)
 
 # {'EC': '연결 어미',
 #  'ECD': '의존적 연결 어미',
@@ -71,7 +82,7 @@ pprint(kkma.tagset)
 #  'XSN': '명사파생 접미사',
 #  'XSV': '동사 파생 접미사'}
 
-pprint(kkma.pos(u'오류보고는 실행환경, 에러메세지와함께 설명을 최대한상세히!^^'))
+#pprint(kkma.pos(u'오류보고는 실행환경, 에러메세지와함께 설명을 최대한상세히!^^'))
 
 # [('오류', 'NNG'), 보통명사
 #  ('보고', 'NNG'), 보통명사
@@ -90,5 +101,19 @@ pprint(kkma.pos(u'오류보고는 실행환경, 에러메세지와함께 설명�
 #  ('!', 'SF'),     마침표, 물음표, 느낌표
 #  ('^^', 'EMO')]   
 
+analyze_str = u'나는 하늘을 나는 자동차를 탔다'
+print("[kkma]"      ,kkma.pos(analyze_str))
+print("[okt] "      ,okt.pos(analyze_str))
+print("[komoran]"   ,komoran.pos(analyze_str))
+print("[hannanum]"  ,hannanum.pos(analyze_str))
+print("[twitter]"   ,twitter.pos(analyze_str))
+print("\n")
 
-pprint(kkma.pos(u'싸이코패스 할아버지가 큰 집에 살고있었고 그 집은 무서운 분위기를 풍겼다. 경찰들이 보였고, 사람들이 보였다. 이후에 집에 물이 가득 채워져서 거기서 물놀이 게임 (리그오브레전드)를 했다.'))
+analyze_str = u'결국 그날 날선 눈빛으로 날 노려본 뒤 날쌘 몸짓으로 날아와 날이 선 손을 내밀었다.'
+print("[kkma]"      ,kkma.pos(analyze_str))
+print("[okt] "      ,okt.pos(analyze_str))
+print("[komoran]"   ,komoran.pos(analyze_str))
+print("[hannanum]"  ,hannanum.pos(analyze_str))
+print("[twitter]"   ,twitter.pos(analyze_str))
+print("\n")
+

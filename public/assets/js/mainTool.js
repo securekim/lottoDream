@@ -1,9 +1,34 @@
 let myInfo = "WEB";
 const defaultLongTime = 2000;
 const defaultShortTime = 1500;
+const essential_tags = [
+    //'MDN', 
+    'NN', 
+    'NNG', 
+    'NNP', 
+    //'VA', 
+    //'VV', 
+    //'VXA'
+] 
 
 refreshTableWithStorage_LOCKER();
 refreshTableWithStorage_LOTTO();
+
+const isEssential = (word) =>{
+    //word 의 형태 : "나/NN"
+    try{
+    let speach = word.split("/")[1];
+    } catch(e) {
+        console.log(e);
+        return false;
+    }
+    essential_tags.forEach(tag => {
+        if(speach == tag){
+            return true;
+        }
+    });
+    return false;
+}
 
 const BUTTON_INTEPRET = () =>{
     let dream = $('#TEXTAREA_DREAM').val()
@@ -25,11 +50,7 @@ const BUTTON_INTEPRET = () =>{
                 if(result.status == 200) {
                     let morph = JSON.parse(result.result).morph;
                     if (morph.length == 0 ) {
-                        return Swal.fire({
-                            icon: 'error',
-                            title: 'A.I. Dream Reader',
-                            text: '꿈의 내용이 이상합니다.',
-                          })
+                        return alertify.alert("꿈의 내용이 이상합니다. 다시 입력하세요.")
                     }
                     console.log(morph);
                     alertify.prompt("꿈의 제목을 입력하세요.", "꿈 제목",
@@ -119,7 +140,7 @@ const BUTTON_CONTACTSAVE = () =>{
 
 const BUTTON_DELDREAMS = () =>{
     alertify.confirm('정말로 삭제하시겠습니까?', function(){ 
-        alertify.success('네')
+        alertify.success('삭제 완료')
         STORAGE_delDreams();
     }
     , function(){ alertify.error('취소')});
@@ -154,11 +175,12 @@ const BUTTON_GETLOTTO = (title, dream) =>{
                   if (morph.length == 0 ) 
                       return alertify.alert("꿈의 내용이 이상합니다. 다시 입력하세요.")
                   console.log(morph);
-                  let nouns = [];
+                  let words = [];
                   for(var i in morph) {
-                      if(morph[i].split("/")[1] == "Noun") nouns.push(morph[i].split("/")[0]);
+                      
+                      if(isEssential(morph[i])) words.push(morph[i].split("/")[0]);
                   }
-                  let lottos = generateLotto(nouns);
+                  let lottos = generateLotto(words);
                   let message = ""
                   console.log(lottos);
                   message = lottos.result.join("번, ");
