@@ -13,7 +13,7 @@ let QUERY = {
     DREAM_NUMBER_POST : "INSERT INTO dreams(token, id, dream, round, numbs, words) VALUES(_GENQ_);",
     DREAM_NUMBER_GET  : "SELECT * FROM dreams WHERE token = ? and id = ? and dream = ?",
     DREAM_AI_POST     : "INSERT INTO dreams_ai(token, id, title, dream, score) VALUES(_GENQ_);",
-    NUMBER_ALL_GET    : "SELECT `time`, numbs FROM dreamlotto.dreams;",
+    NUMBER_ALL_GET    : "SELECT `time`, dream, numbs FROM dreamlotto.dreams;",
     //HISTORY_WS      : "INSERT INTO history(ID, History, target, point) VALUES(_GENQ_);"
 }
 
