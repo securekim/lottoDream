@@ -20,7 +20,7 @@
     "mysql": "^2.18.1",
     "node-java": "^1.0.1",
     "node-java-maven": "^0.1.1",
-    "redis": "^3.0.2",
+    "redis": "^3.1.1",
     "request": "^2.88.2",
     "socket.io": "^2.3.0",
     "sweetalert2": "^9.10.12"
